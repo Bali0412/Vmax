@@ -172,17 +172,17 @@
         //initBackgroundLayers(); 
     }
 
-    mapLayers = global.layerController.initBackgroundLayers();
-    let nagoldaLayers = global.layerController.initLayers(global.layersData.nagoldaLayers);
-    let neopolishLayers = global.layerController.initRasterLayers(global.layersData.neopolish, 'Neopolish Layers');
+    mapLayers = global.layerController.initBackgroundLayers();//Thêm các lớp nền vào map
+    let nagoldaLayers = global.layerController.initLayers(global.layersData.nagoldaLayers); //Thêm các lớp nagoldaLayers vào map
+    let neopolishLayers = global.layerController.initRasterLayers(global.layersData.neopolish, 'Neopolish Layers'); //thêm các lớp Neopolish vào map
     //let pincode50019Layers = global.layerController.initRasterLayers(global.layersData.pincode500019, 'Layouts');
-    let HdmaMasterPlan = global.layerController.initLayers(global.layersData.HMDAMasterPlanZones);
-    let survey = global.layerController.initSurveyLayer(global.layersData.Survey);
-    mapLayers = mapLayers.concat(nagoldaLayers, neopolishLayers,HdmaMasterPlan,survey  /*,pincode50019Layers*/)
+    let HdmaMasterPlan = global.layerController.initLayers(global.layersData.HMDAMasterPlanZones); //Thêm các lớp HMDA plan zone vào map
+    let survey = global.layerController.initSurveyLayer(global.layersData.Survey);//Thêm các lớp survey vào map
+    mapLayers = mapLayers.concat(nagoldaLayers, neopolishLayers,HdmaMasterPlan,survey  /*,pincode50019Layers*/)//thêm các lớp vào list mapLayers
     
      //Select All when click group Neopolish layer
     
-    function changeVisibleLayer (childLayers, currentVisible) {
+    function changeVisibleLayer (childLayers, currentVisible) { //Tạo sự kiện nhấp vào checkbox sẽ check các lớp con bên trong
         for (var i = 0; i < childLayers.length; i++) {
             var childLayer = childLayers[i];
             if (currentVisible === true) {
@@ -224,8 +224,8 @@
     
     
     
-    var sourceGeomBuilding = new ol.source.Vector();
-    base.sourceGeomBuilding = sourceGeomBuilding;
+    var sourceGeomBuilding = new ol.source.Vector();//Tạo một lớp vector Legend
+    base.sourceGeomBuilding = sourceGeomBuilding;//Không biết mục đích làm gì
     var geomBuilding = new ol.layer.Vector({
         title: "Legend",
         source: sourceGeomBuilding,
@@ -286,7 +286,7 @@
 //    console.log(geomBuilding);
     mapLayers.push(geomBuilding);
     
-    var mapView = new ol.View({
+    var mapView = new ol.View({// xây dựng view bản đồ theo dữ liệu từ file appConfig
         projection: global.appConfig.mapProjection,
         // center: global.appConfig.defaultCenter,
         zoom: global.appConfig.defaultZoom,
@@ -295,12 +295,12 @@
     });
     
     var map = new ol.Map({
-        target: 'map',
-        pixelRatio: 1,
-        view: mapView,
-        layers: mapLayers,
-        interaction: ol.interaction.defaults.defaults(),
-        controls: ol.control.defaults.defaults().extend
+        target: 'map',//gán Map cho element id map
+        pixelRatio: 1,//Đặt tỉ lệ pixel cho bản đồ
+        view: mapView,//gán view từ view được thiết lập phía trên
+        layers: mapLayers,//Thêm các lớp bản đồ vào
+        interaction: ol.interaction.defaults.defaults(),//Các chức năng tương tác với bản đồ là mặc định
+        controls: ol.control.defaults.defaults().extend//Thêm các controll vào 
                 ([
                     // new ol.control.ScaleLine(),
                     // new ol.control.OverviewMap({
@@ -316,10 +316,10 @@
     
     
  
-    async function getDataFromGeoserver(evt, layerName) {
+    async function getDataFromGeoserver(evt, layerName) { //hàm này không được sử dụng trong web
         var dataReturn;
         await $.ajax({
-            url: MAP_BASE_URL + '/gis/wms?',
+            url: MAP_BASE_URL + '/gis/wms?',//lấy dữ liệu từ geoserver qua gọi api geojson
             type: 'GET',
             dataType: 'json',
             data: {
@@ -348,7 +348,7 @@
         return dataReturn;
     }
 
-    function callApiUpdateBuldingStyle(idList) {
+    function callApiUpdateBuldingStyle(idList) {//hàm này không được sử dụng
         $u.ajaxRequest('POST', 'https://webgis.proper-t.co/' + 'php/updateBuildingStyle.php', { "ids": idList.join("_"), "_timestamp": (new Date()).getTime() }, function (responseInner) {
             if (responseInner.message.status && responseInner.message.status == "success") {
                 // GISApp.layerController.layers["propert:public.Parcel"].getSource().updateParams({
@@ -360,60 +360,60 @@
                 inforDiv.textContent = dataBbox;
             }
         })
+    }//Hàm này được gọi để lấy các style building trong api
+    
+    function getFeatureByClick(evt, layername) {//Lấy Feature khi click vào bản đồ
+        var pixel = evt.map.getEventPixel(evt.originalEvent);//lấy sự kiện khi nhấp vào pixel đó trên bản đồ
+        var placeSearchFeature = getFeatureForLayer(pixel, layername)//gọi hàm lấy feature tại vị trí pixel
+        return placeSearchFeature //trả về feature hoặc undefine
     }
     
-    function getFeatureByClick(evt, layername) {
-        var pixel = evt.map.getEventPixel(evt.originalEvent);
-        var placeSearchFeature = getFeatureForLayer(pixel, layername)
-        return placeSearchFeature
-    }
-    
-    function getFeatureForLayer(pixel, layername) {
-        return map.forEachFeatureAtPixel(pixel, 
-            function(feature) {
+    function getFeatureForLayer(pixel, layername) {//Lấy feature từ layer đó ra
+        return map.forEachFeatureAtPixel(pixel,  //lặp qua tất cả các đối tượng feature ở vị trí pixel đã cho
+            function(feature) {//nếu đúng trả về feature
                 return feature;
             },
             {
                 layerFilter: function (layer) {
                     return layer.getProperties().name === layername;
                 }
-            }
+            }//nếu sai trả về undefined
         );
     }
     
-    function setPopupLocation(coor) {
-        let zoom = map.getView().getZoom();
-        let change = zoom < 10 ? 20000
-                    : zoom < 12 ? 8000
-                    : zoom < 14 ? 2000
-                    : zoom < 15 ? 800
-                    : zoom < 16 ? 500
-                    : 100
-        mapView.setCenter([coor[0], coor[1] + change])
+    function setPopupLocation(coor) {//hàm zoom đến và hiển thị popup ở vị trí center
+        let zoom = map.getView().getZoom();//lấy zoom và view của map ở vị trí hiện tại
+        let change = zoom < 10 ? 20000 //nếu zoom nhỏ hơn 10 thì change được gán với 20000
+                    : zoom < 12 ? 8000//
+                    : zoom < 14 ? 2000//
+                    : zoom < 15 ? 800//
+                    : zoom < 16 ? 500//
+                    : 100//còn lại
+        mapView.setCenter([coor[0], coor[1] + change])//set center đến vị trí của popup
     }
     
-    function clearSearchInput() {
+    function clearSearchInput() {//clear tất cả giá trị trong input
         const searchResults = document.getElementById('search-results');
         searchResults.innerHTML = '';
     }
     
-    function showSearchInput() {
+    function showSearchInput() {//hiển thị ô gg search
         $("#google-search-input").removeClass("hide-search");
         $("#google-search-input").toggleClass("show-search");
     }
     
-    map.on('singleclick', async (evt) => {
-        global.placeCard.hideCard();
-        global.popupController.hidePopup();
-        showSearchInput();
-        clearSearchInput();
+    map.on('singleclick', async (evt) => { //tạo sự kiện nhấp vào map
+        global.placeCard.hideCard();//chạy hàm ẩn card
+        global.popupController.hidePopup();//Chạy hảm ẩn popup
+        showSearchInput();//hiển thị khung search
+        clearSearchInput();//Clear hết nội dung trong khung input
         
-        location_For_Search = evt.coordinate;
-        GISApp.googleSearchController.setMap(map);
+        location_For_Search = evt.coordinate;//lấy coordinate tạo vị trí search
+        GISApp.googleSearchController.setMap(map);//set map để sử dụng gg search API
         GISApp.googleSearchController.setLocationForSearch(location_For_Search);
-        GISApp.layerController.removeLayer('Point-Clicked', map);
+        GISApp.layerController.removeLayer('Point-Clicked', map);//remove Point-clicked
         
-        var metroFeature = getFeatureByClick(evt, 'Metro Location');
+        var metroFeature = getFeatureByClick(evt, 'Metro Location');//lẩy ra feature tại điểm click
         var buildingFeature = getFeatureByClick(evt, 'Survey Point');
         var placeSearchFeature = getFeatureByClick(evt, 'Point-Searched');
         // var metroData = await getDataFromGeoserver(evt, "Metro_locations");
