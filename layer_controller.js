@@ -6,28 +6,28 @@
 
     let layers = {};
 
-    var mapVectorLayers = [];
-    var mapBackgroundLayers = [];
-    var mapNeopolishLayers = [];
+    var mapVectorLayers = [];//bỏ
+    var mapBackgroundLayers = [];//bỏ
+    var mapNeopolishLayers = [];//bỏ
 
-    function createlayer(mapURL, layerObj) {
-        tile = !!layerObj.tile;
+    function createlayer(mapURL, layerObj) {//hàm tạo layer từ layer data truyền vào
+        tile = !!layerObj.tile;//lấy giá trị tile trong layerObj được truyền vào (boolean)
         var layer = null;
         var source = null;
-        var styles = layerObj.styles || undefined;
-        var metroFeatures = []
+        var styles = layerObj.styles || undefined;//nếu style tồn tại thì lấy ngược lại undefine
+        var metroFeatures = []//bỏ
 
-        var params = {
-            LAYERS: layerObj.layers,
-            SRS: layerObj.srs || global.appConfig.mapProjection,
-            VERSION: layerObj.serviceVersion,
+        var params = { //tạo một biến param để sử dụng cho WMS
+            LAYERS: layerObj.layers,//lấy tên layer để gán vào LAYERS
+            SRS: layerObj.srs || global.appConfig.mapProjection, //lấy projection mặc định 
+            VERSION: layerObj.serviceVersion,//lấy version của geoserver
             STYLES: styles
         }
         
-		if(layerObj.vector) {
-			mapURL = MAP_BASE_URL + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + layerObj.geserver_id + "&outputFormat=application%2Fjson";
+		if(layerObj.vector) {//nếu vector tồn tại
+			mapURL = MAP_BASE_URL + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + layerObj.geserver_id + "&outputFormat=application%2Fjson"; //lấy dữ liệu từ geoserver
 			
-			layer = new ol.layer.Vector({
+			layer = new ol.layer.Vector({//tạo một vector mới
 			    title: layerObj.title,
 			    visible: !!layerObj.visible,
 			    source: new ol.source.Vector({				 
@@ -86,9 +86,9 @@
 		    var layerName = layerObj.name
 		  //  if (layerNames.includes(layerName)) return;
             // Handle Source
-            if (layerObj.GWCservice === 'WMTS') {
+            if (layerObj.GWCservice === 'WMTS') {//nếu GWCservice là WMTS
                 
-                source = new ol.source.XYZ({
+                source = new ol.source.XYZ({//tạo source XYZ
                     url: mapURL + global.appConfig.WMTSService +
                         `layer=${layerObj.geserver_id}` + 
                         `&style=` + 
@@ -102,25 +102,25 @@
                     crossOrigin: 'anonymous'
                 })
             }
-            else {
-                source = new ol.source.TileWMS({
+            else {//nếu không là WMTS
+                source = new ol.source.TileWMS({//thêm các param vào tileWMS
                     url: mapURL + global.appConfig.WMSService,
                     params: params,
                     serverType: layerObj.serverType || 'geoserver'
                 })
             }
             // Handle Layer Tile
-			if (tile) {
+			if (tile) {//nếu tile là true
 
-            layer = new ol.layer.Tile({
+            layer = new ol.layer.Tile({//tạo một Tile 
                 title: layerObj.title,
                 visible: !!layerObj.visible,
                 source: source
             });
 
-			} else {
+			} else {//Ngược lại
 
-				layer = new ol.layer.Image({
+				layer = new ol.layer.Image({//Tạo một imag
 					title: layerObj.title,
 					visible: !!layerObj.visible,
 					source: new ol.source.ImageWMS({
@@ -132,11 +132,11 @@
 			}
 		}
 
-        return layers[layerObj.id] = layer;
+        return layers[layerObj.id] = layer;//trả về các layer trong các key id layer
     }
 
 
-    function initBackgroundLayers() {
+    function initBackgroundLayers() { //hàm tạo các lớp nền
 
         // var roadmapLayer = new olgm.layer.Google({
         //     title: "Google street map",
@@ -149,11 +149,11 @@
         //     visible: false
         // });
 
-        var baseLayers = new ol.layer.Group(
-                {title: 'Base Layers',
-                    openInLayerSwitcher: false,
-                    visible: true,
-                    layers:
+        var baseLayers = new ol.layer.Group( //tạo một group chứa các base
+                {title: 'Base Layers', //đặt title " Base Layers"
+                    openInLayerSwitcher: false,// bất cập
+                    visible: true,// set hiển thị
+                    layers://thêm các layer là các lớp nền vào
                             [
                                 new ol.layer.Tile(
                                         {title: "Watercolor",
@@ -227,16 +227,16 @@
                 });
 
         // return mapBackgroundLayers = [roadmapLayer, hybridlayer, baseLayers];
-        return mapBackgroundLayers = [baseLayers];
+        return mapBackgroundLayers = [baseLayers];//hàm trả về một list các layer
 
     }
     
-    function initRasterLayers(layersData, layerTitle) {
-        if (layersData) {
+    function initRasterLayers(layersData, layerTitle) {//hàm tạo các layer có kiểu là raster
+        if (layersData) {//nếu layersData tồn tại
             var layerList = [];
-            layersData.forEach((data) => {
+            layersData.forEach((data) => {//lặp qua các phần tử trong layerData
                 var layerName = data.name
-                var mapURL = MAP_BASE_URL + global.appConfig.urlGWC;
+                var mapURL = MAP_BASE_URL + global.appConfig.urlGWC;//lấy url từ geoserver
                 
                 let source = new ol.source.XYZ({
                     url: mapURL + global.appConfig.WMTSService +
@@ -274,72 +274,68 @@
         }
     }
 
-    function initLayers(layersData) {
+    function initLayers(layersData) { //Thêm các layer 
 
-        if (layersData) {
+        if (layersData) {//nếu layersData tồn tại
+ 
+            var tmpLayersData = {}; //tạo một obj 
 
-            var tmpLayersData = {};
-
-            var layerGroups = {};
+            var layerGroups = {}; //tạo một obj chứa layerGroups
 
             var layerGroupByGroups = {};
 
             for (var i in layersData) {
 
-                let l = layersData[i];
-                tmpLayersData[l.id + "_" + (i + 1)] = l;
+                let l = layersData[i];//tạo l gán cho lớp i
+                tmpLayersData[l.id + "_" + (i + 1)] = l;//tạo ra phần tử trong tmpLayersData["propert:public.HMDA_Master_Plan_1] = l
 
-                layerGroups[l.groupID] = l.groupTitle;
+                layerGroups[l.groupID] = l.groupTitle;//layerGroups["HMDA Master Plan Zones"] = "HMDA Master Plan Zones"
 
-                var group = layerGroupByGroups[l.groupID];
+                var group = layerGroupByGroups[l.groupID];//group = layerGroupByGroups["HMDA Master Plan Zones"]
 
-                if (!group) {
+                if (!group) {//nếu group tồn tại
 
                     /*
                      * create a new group
                      */
 
-                    group = layerGroupByGroups[l.groupID] = [];
+                    group = layerGroupByGroups[l.groupID] = [];//layerGroupByGroups["HMDA Master Plan Zones"]=[]
                 }
 
                 /*
                  *  and the current layer
                  */
-                group.push(l);
+                group.push(l);//group = [những phần tử trong data layer]
             }
 
-            let layers = [];
+            let layers = [];//tạo một mảng layers rỗng
 
-            for (var groupId in layerGroupByGroups) {
+            for (var groupId in layerGroupByGroups) { //lặp qua các phần tử trong layerGroupByGroups
 
-                var listOfLayers = layerGroupByGroups[groupId];
+                var listOfLayers = layerGroupByGroups[groupId];//lấy ra các phần tử trong layerGroupByGroups
 
-                var listOfCreatedLayers = [];
+                var listOfCreatedLayers = [];//tạo một mảng rỗng
 
-                if (listOfLayers instanceof Array) {
+                if (listOfLayers instanceof Array) {//nếu listOfLayers là một Array
 
-                    for (var j in listOfLayers) {
-                        var l = listOfLayers[j];
+                    for (var j in listOfLayers) {//lặp qua các key trong listOfLayers
+                        var l = listOfLayers[j];//gán l cho phần tử j trong listOfLayers
                         
-                        if(l.useCache){
+                        if(l.useCache){//nếu useCache == true
                             listOfCreatedLayers.push(createlayer(GWC_URL, l));                            
-                        } else{
+                        } else{//ngược lại nêu useCache == false
                             listOfCreatedLayers.push(createlayer(WMS_URL, l));
                         }
                     }
-                    layers.push(
+                    layers.push(//push các layer vào 1 group
                             new ol.layer.Group({
                                 title: layerGroups[groupId],
                                 openInLayerSwitcher: false,
                                 layers: listOfCreatedLayers
                             })
                             );
-
                 }
-
-
             }
-
             return mapVectorLayers = layers;
         }
 
@@ -465,8 +461,8 @@
       return layerMap
     }
     
-    function createFeatureStyle(style_id, map) {
-        var resolution = map.getView().getResolution();
+    function createFeatureStyle(style_id, map) {//tạo style cho feature building point
+        // var resolution = map.getView().getResolution();
         //  `${unitType}-${forSale}-${forRent}-${catId}`,
         var imageMapping = {
             '0-0-0-1': apiUrl+'/public/webgis/images/icon_commercial_one.png',
@@ -501,13 +497,13 @@
 
             '0-0-0-6': apiUrl+'/public/webgis/images/icon_demolished_one.png',   
             
-        };
+        };//Tạo một obj chứa tất cả trường hợp để trả về đúng logo
     
-        var imagePath = imageMapping[style_id] || apiUrl+'/public/webgis/images/icon_commercial_one.png';
-        var iconImage = new Image();
-        iconImage.src = imagePath;
+        var imagePath = imageMapping[style_id] || apiUrl+'/public/webgis/images/icon_commercial_one.png';//nếu không nằm trong list thì mặc định là ...
+        var iconImage = new Image();//Tạo một đối tượng Image
+        iconImage.src = imagePath;//gán src cho đối tượng
 
-        return new Promise((resolve) => {
+        return new Promise((resolve) => {//Tạo một promise để khi loand xong các hình ảnh trước khi các điểm này được tạo
             iconImage.onload = function () {
                 
                 // Fix Me
@@ -527,10 +523,10 @@
         })
     }
 
-    function addBuildingLayer(layerName, centroidList, map) {
+    function addBuildingLayer(layerName, centroidList, map) {//hàm tạo lớp buildingLayer (gán vào 3 tham số: tên layer, list dữ liệu layer, map)
         var features = [];
         
-        centroidList.forEach(function(data) {
+        centroidList.forEach(function(data) {//lặp qua danh sách các dữ liệu
             var feature = new ol.Feature({
                 geometry: data.point,
                 gis_id: data.gis_id,
