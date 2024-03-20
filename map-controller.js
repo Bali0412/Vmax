@@ -623,11 +623,11 @@
     //  End Live Location Feature
 
 
-    global.placeCard.initCard(map);
-    global.popupController.initPopup(map);
+    global.placeCard.initCard(map);    //tạo overlay phủ lên trên map
+    global.popupController.initPopup(map);    //tạo overlay phủ lên trên map
 
-    base.map = map;
-    base.view = map.getView();
+    base.map = map;//thêm map vào base
+    base.view = map.getView();//thêm view vào base
 
 
     // var olGM = new olgm.OLGoogleMaps({map: map}); // map is the ol.Map instance
@@ -635,16 +635,16 @@
 
     // base.olGM = olGM;
 
-    var mainbar = new ol.control.Bar();
-    map.addControl(mainbar);
-    var nested = new ol.control.Bar({toggleOne: true, group: true});
+    var mainbar = new ol.control.Bar();//tạo một thanh chứa các control
+    map.addControl(mainbar);//thêm vào control
+    var nested = new ol.control.Bar({toggleOne: true, group: true});//thêm một thanh chứa các button, thanh này chỉ cho phép một button được bật
 
-    let infoControl = global.infoOnClick.getInstance();
+    let infoControl = global.infoOnClick.getInstance();//chỗ này không có tác dụng
 
 
     global.infoControl = infoControl;
 
-    nested.addControl(infoControl);
+    nested.addControl(infoControl);    //thêm button infoControl vào
 
     var dragCtrl = new ol.control.Toggle(
             {html: '<i class="fa fa-hand-pointer-o"></i>',
@@ -659,10 +659,10 @@
     mainbar.addControl(nested);
     mainbar.addControl(new ol.control.ZoomToExtent({extent: global.appConfig.defaultExtent}));
     mainbar.addControl(new ol.control.Rotate());
-    mainbar.addControl(new ol.control.FullScreen());
+    mainbar.addControl(new ol.control.FullScreen());//thêm các button vào trong mainbar
 
     //activating info control by default
-    infoControl.setActive(true);
+    infoControl.setActive(true);//set trạng thái đang bật
 
     var house_no;
     var gis_id;
