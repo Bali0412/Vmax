@@ -503,7 +503,7 @@
         var iconImage = new Image();//Tạo một đối tượng Image
         iconImage.src = imagePath;//gán src cho đối tượng
 
-        return new Promise((resolve) => {//Tạo một promise để khi loand xong các hình ảnh trước khi các điểm này được tạo
+        return new Promise((resolve) => {//Tạo một promise để khi load xong các hình ảnh trước khi các điểm này được tạo
             iconImage.onload = function () {
                 
                 // Fix Me
@@ -527,52 +527,52 @@
         var features = [];
         
         centroidList.forEach(function(data) {//lặp qua danh sách các dữ liệu
-            var feature = new ol.Feature({
-                geometry: data.point,
+            var feature = new ol.Feature({	//tạo đối tượng Feature mới
+                geometry: data.point,		//thêm các trường dữ liệu cho Feature
                 gis_id: data.gis_id,
                 style_id:data.style_id
             });
-            createFeatureStyle(data.style_id, map).then(function (style) {
-                feature.setStyle(style);
+            createFeatureStyle(data.style_id, map).then(function (style) {	//Tạo style khi đối tượng có style_id
+                feature.setStyle(style);	//Set style cho mỗi đối tượng
             });
             
-            features.push(feature);
+            features.push(feature);	//Thêm các đối tượng vào mảng features
         });
         
-        var vectorSource = new ol.source.Vector({
+        var vectorSource = new ol.source.Vector({	//Tạo source vector từ mảng features
             features: features
         });
         
-        var vectorLayer = new ol.layer.Vector({
+        var vectorLayer = new ol.layer.Vector({		//Tạo lớp vector lấy source được tạo ở phía trên (có thể bỏ đoạn code này)
             source: vectorSource,
             name: layerName,
         });
         
-        var clusterSource = new ol.source.Cluster({
-            distance: 40,
-            source: vectorSource,
+        var clusterSource = new ol.source.Cluster({	//Tạo source cluster từ các điểm
+            distance: 40,	//khoảng cách để gom các điểm lại là 40
+            source: vectorSource, //Source được tạo ở phía trên
         });
         
-        var styleCache = {};
-        var maxRadius = 20;
+        var styleCache = {};	//tạo một obj để chứa style
+        var maxRadius = 20;	//tạo một biến mặc định là bán kính của vòng tròn điểm
         
-        var clusterLayer = new ol.layer.Vector({
-            source: clusterSource,
-            style: function (feature) {
-                var size = feature?.get('features').length;
+        var clusterLayer = new ol.layer.Vector({	//tạo lớp layer hiển thị lớp cluster lên map
+            source: clusterSource,	//gán source cluster
+            style: function (feature) {		//style là một function
+                var size = feature?.get('features').length;	//thay đổi size tuỳ vào số lượng các điểm tại khu vực đó
                 var baseRadius = 10;
-                var radius = baseRadius + size * 1.5;
+                var radius = baseRadius + size * 1.5;	//Vòng tròn điểm sẽ thay đổi nếu size lớn
                 
-                var textSize = Math.min(16, 8 + size)+2;
+                var textSize = Math.min(16, 8 + size)+2;	//size cũng sẽ thay đổi theo số lượng các điểm
                 radius = Math.min(radius, maxRadius)+2;
                 
-                if (size === 1) {
+                if (size === 1) { 	//nếu size bằng 1 thì sẽ gán icon cho điểm
                     return feature.get('features')[0].getStyle();
                 } else {
-                    var style = styleCache[size];
+                    var style = styleCache[size];	//nếu lớn hơn 1 sẽ hiển thị các radius của cluster
                     
-                    if (!style) {
-                        style = new ol.style.Style({
+                    if (!style) {	//kiểm tra xem style có tồn tại trong styleCache không
+                        style = new ol.style.Style({	//Nếu chưa tồn tại tạo một style mới
                             image: new ol.style.Circle({
                                 radius: radius,
                                 stroke: new ol.style.Stroke({
@@ -596,7 +596,7 @@
                             }),
                             zIndex: 1
                         });
-                        var shadowStyleOut = new ol.style.Style({
+                        var shadowStyleOut = new ol.style.Style({	//tạo hiệu ứng bóng ngoài cho điểm
                             image: new ol.style.Circle({
                                 radius: radius + 2, 
                                 fill: new ol.style.Fill({
@@ -605,7 +605,7 @@
                             }),
                             zIndex: 0 
                         });
-                        var shadowStyleIn = new ol.style.Style({
+                        var shadowStyleIn = new ol.style.Style({	//tạo hiệu ứng bóng trong cho điểm
                             image: new ol.style.Circle({
                                 radius: radius - 1, 
                                 fill: new ol.style.Fill({
@@ -618,7 +618,7 @@
                             }),
                             zIndex: 2 
                         });
-                        style = [shadowStyleIn, shadowStyleOut, style];
+                        style = [shadowStyleIn, shadowStyleOut, style];		//gán style cho layer
                         styleCache[size] = style;
                     }
                     return style;
@@ -632,15 +632,15 @@
         
     }
     
-    function removeLayer (layerName, map) {
-        var layerRemoved = map.getLayers().getArray().find(layer => layer.get('name') === layerName);
-        if (layerRemoved) {
-              map.removeLayer(layerRemoved);
+    function removeLayer (layerName, map) { //hàm gỡ layer ra khỏi map, tham số truyền vào sẽ là tên layer và đối tượng map
+        var layerRemoved = map.getLayers().getArray().find(layer => layer.get('name') === layerName);		//tìm layer từ tên layer
+        if (layerRemoved) {	//nếu layer tồn tại
+              map.removeLayer(layerRemoved);	//remove layer ra khỏi map
         }
     }
     
-    function zoomToLayer(extent, map) {
-        map.getView().fit(extent, {
+    function zoomToLayer(extent, map) {		//hàm phóng đến một layer, tham số truyền vào là extent của đối tượng và map
+        map.getView().fit(extent, {	//hướng đến giới hạn toạ độ được truyền vào
             size: map.getSize(),
             padding:[10,10,10,10],
             nearest: false,
@@ -658,47 +658,47 @@
         }
     }
     
-    function updateBuildingList(buildingList, buildingLayerName, geometryPoint) {
+    function updateBuildingList(buildingList, buildingLayerName, geometryPoint) {	//không sử dụng
         var point = format.readGeometry(geometryPoint);
         var catId = data.cat_id === null ? 0 : data.cat_id
     }
     
-    function handleHighlightLayer(dataList, map, styleFill, styleLine, polygonLayerName, buildingLayerName) {
-        var extent = ol.extent.createEmpty();
+    function handleHighlightLayer(dataList, map, styleFill, styleLine, polygonLayerName, buildingLayerName) {	//hàm được sử dụng để tạo các lớp survey, nonsurvey, building point từ API
+        var extent = ol.extent.createEmpty();	//tạo một extent rỗng khi chạy hàm
         // var geomList = [];
-        var buildingList = []
+        var buildingList = []	//tạo array buildingList rỗng để chứa các dữ liệu
         
-        dataList.forEach(function(data) {
-            var format = new ol.format.WKT();
+        dataList.forEach(function(data) {	//lặp qua các phần tử trong datalist được truyền vào
+            var format = new ol.format.WKT();	//đặt format là WKT (để đọc hiểu trường geometry có giá trị(MULTIPOLYGON(....))
             // if (data.polygon !== null) {
             //     var polygon = format.readGeometry(data.polygon);
             //     geomList.push(polygon);
             // }
             
-            var point
-            var gis_id = data.gis_id ? data.gis_id : null;
-            var surveypoint = data.survey_point;
+            var point						//tạo biến point
+            var gis_id = data.gis_id ? data.gis_id : null;	//nếu gis_id trong data tồn tại thì gán cho gis_id ngược lại là null
+            var surveypoint = data.survey_point;		//lấy centroiPoint
             var centroidPoint = data.centroid_point;
-            var catId = data.cat_id === null ? 0 : data.cat_id;
-            var forSale = data.for_sale === null ? 0 : data.for_sale;
-            var forRent = data.for_rent === null ? 0 : data.for_rent;
-            var unitType = data.unit_type === null ? 0 : data.unit_type;
+            var catId = data.cat_id === null ? 0 : data.cat_id;		//nếu cat_id trong data tồn tại thì gán cho cat_id ngược lại là null	
+            var forSale = data.for_sale === null ? 0 : data.for_sale;	//nếu for_sale trong data tồn tại thì gán cho forSale ngược lại là null
+            var forRent = data.for_rent === null ? 0 : data.for_rent;	//nếu for_rent trong data tồn tại thì gán cho forRent ngược lại là null
+            var unitType = data.unit_type === null ? 0 : data.unit_type;//nếu unit_type trong data tồn tại thì gán cho unitType ngược lại là null
             
-            if (buildingLayerName !== null && centroidPoint !== null) {
-                point = format.readGeometry(centroidPoint);
+            if (buildingLayerName !== null && centroidPoint !== null) {		//Kiểm tra nếu buildingLayerName khác null và centroipoint khác null
+                point = format.readGeometry(centroidPoint);			//lấy geometry là centroiPoint (Định nghĩa lại)
             } else if (buildingLayerName !== null && surveypoint !== null) {
-                point = format.readGeometry(surveypoint);
+                point = format.readGeometry(surveypoint);			//ngược lại nếu surveypoitn tồn tại thì lấy geometry là surveypoint
             }
-            
-            if (point) {
-                buildingList.push({
-                    'style_id': `${unitType}-${forSale}-${forRent}-${catId}`,
-                    'gis_id': gis_id,
-                    'point': point
+            	
+            if (point) {							//Nếu point tồn tại
+                buildingList.push({						//push các đối tượng point vào buildingList
+                    'style_id': `${unitType}-${forSale}-${forRent}-${catId}`,	//gán style id bằng cách tạo chuỗi bằng các biến (cat_id, forSale, forRent, unitType)
+                    'gis_id': gis_id,						//gán gis_id
+                    'point': point						//trường point là các toạ độ được định nghĩa
                 })
             }
-            if (dataList.length === 1 && buildingList.length > 0) {
-                map.getView().setCenter(buildingList[0].point.getCoordinates());
+            if (dataList.length === 1 && buildingList.length > 0) { 	//nếu datalist truyền vào chỉ có 1 giá trị
+                map.getView().setCenter(buildingList[0].point.getCoordinates()); //zoom đến giá trị đó
                 map.getView().setZoom(15);
              }
             // ol.extent.extend(extent, polygon.getExtent());
@@ -711,18 +711,18 @@
         //zoomToLayer(extent, map);
     }
     
-    function clearSurveyAndNonSurveyLayer (map) {
+    function clearSurveyAndNonSurveyLayer (map) { //hàm được sử dụng để remove các layer
         var layerList = ['Survey Point', 'Survey Polygon', 'Not Survey Point', 'Not Survey Polygon']
         layerList.forEach(function(lay) {
             removeLayer(lay, map);
         })
     }
     
-    function pointClickIconStyle (point) {
+    function pointClickIconStyle (point) {	//hàm này sẽ tạo ra một icon khi click vào bản đồ
         // Define the icon style
-        var svgIcon = new Image();
-        var labelText = point.get('label');
-        svgIcon.src = apiUrl + '/public/webgis/images/others.png';
+        var svgIcon = new Image();		//tạo một image mới
+        var labelText = point.get('label');	//lấy ra label trong đối tượng truyền vào
+        svgIcon.src = apiUrl + '/public/webgis/images/others.png';	//gán src image
 
         var iconStyle = new ol.style.Style({
             image: new ol.style.Icon({
@@ -730,7 +730,7 @@
               imgSize: [85, 100],
               scale: 0.6,
             }),
-            text: new ol.style.Text({
+            text: new ol.style.Text({	//tạo label hiển thị cho điểm đó
                 text: labelText || '',
                 font: 'bold 10px Calibri,sans-serif',
                 fill: new ol.style.Fill({
@@ -740,22 +740,22 @@
                     color: 'white',
                     width: 2,
                 }),
-                offsetX: 110,
+                offsetX: 110,	//vị trí sẽ nằm trên icon
             }),
         });
 
         return iconStyle;
     }
     
-    async function addPointClickedLayer(map, point) {
-        var vectorSource = new ol.source.Vector();
+    async function addPointClickedLayer(map, point) {	//hàm này được khởi toạ khi nhấp vào một điểm trên map
+        var vectorSource = new ol.source.Vector();	//tạo một source Vector mới
 
-        var iconStyle = await pointClickIconStyle(point);
-        point.setStyle(iconStyle);
+        var iconStyle = await pointClickIconStyle(point);	//iconStyle được chạy khi hàm pointClickIconStyle được hoàn thành
+        point.setStyle(iconStyle);	//setStyle cho đối tượng point
         
-        vectorSource.addFeature(point);
+        vectorSource.addFeature(point);	//thêm feature với style được hiển thị vào src
 
-        var vectorLayer = new ol.layer.Vector({
+        var vectorLayer = new ol.layer.Vector({	//tạo một lớp layer từ vectorSource
             source: vectorSource,
             name: 'Point-Clicked'
         });
@@ -763,8 +763,8 @@
         map.addLayer(vectorLayer);
     }
     
-    function addPointSearchLayer(map, pointList, iconURL, bbox) {
-        var vectorSource = new ol.source.Vector({
+    function addPointSearchLayer(map, pointList, iconURL, bbox) {	//hàm này sẽ thêm đối tượng được tìm thấy bằng gg search vào trong map
+        var vectorSource = new ol.source.Vector({																		
             projection: 'EPSG:900913',
         });
         
@@ -812,12 +812,12 @@
         
     }
     
-    function addMorePointSearchFeature(map, pointList) {
+    function addMorePointSearchFeature(map, pointList) { //thêm điểm mới
         var pointSearchLayer = map.getLayers().getArray().find(layer => layer.get('name') === 'Point-Searched');
         pointSearchLayer.getSource().addFeatures(pointList);
     }
     
-    function addLabelLayer(map, label, feature, mouseCoords) {
+    function addLabelLayer(map, label, feature, mouseCoords) { //hàm này tạo label khi hover vào đối tượng trên map
         var vectorSource = new ol.source.Vector({
             projection: 'EPSG:900913',
         });
