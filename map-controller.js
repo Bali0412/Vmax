@@ -509,26 +509,26 @@
     });
     
     // Handle Show Metro Popup
-    var metroLayers = global.layerController.layers['propert:public.metro_locations'];
-    var metroSource = metroLayers.getSource();
+    var metroLayers = global.layerController.layers['propert:public.metro_locations']; //lấy layer metro_locations
+    var metroSource = metroLayers.getSource(); //lấy source của lớp metro_locations
     var metroFeatures = [];
     
-    metroSource.on('addfeature', function (event) {
+    metroSource.on('addfeature', function (event) { //khi sự kiện thêm lớp metro được diễn ra thì push các đối tượng vào list metroFeatures
         var feature = event.feature;
         metroFeatures.push(feature);
     });
     
-    metroLayers.on('change:visible', function(event) {
+    metroLayers.on('change:visible', function(event) {    //bắt sự kiện khi bật visible cho lớp metro_locations
         setTimeout(() => {
             var isVisible = metroLayers.getVisible();
     
-            if (isVisible) {
-                metroFeatures.forEach(function(feature) {
-                    var coordinate = feature.getGeometry().getCoordinates();
-                    var name = feature.get('name');
-                    global.metroCard.initCard(map, name, coordinate);
+            if (isVisible) {    //nếu visible được bật (true)
+                metroFeatures.forEach(function(feature) {    //lặp qua các feature trong metroFeatures
+                    var coordinate = feature.getGeometry().getCoordinates();    //lấy ra toạ độ của những feature
+                    var name = feature.get('name');    //lấy ra name của feature
+                    global.metroCard.initCard(map, name, coordinate);    //hiển thị init card của lớp metro
                 });
-            } else {
+            } else {    //ngược lại nếu tắt lớp metro_locations thì sẽ lặp qua để tắt các card 
                 metroFeatures.forEach(function(feature) {
                     var name = feature.get('name');
                     global.metroCard.removeCard(name);
@@ -537,20 +537,20 @@
         }, 1000)
     });
     
-    //  Start Live Location Feature
+    //  Start Live Location Feature //lấy toạ dộ vị trí hiện tại của người dùng
     var intervalAutoLocate;
 
-    var geolocation = new ol.Geolocation({
+    var geolocation = new ol.Geolocation({    //sử dụng geolocation để lấy toạ độ người dùng
         trackingOptions: {
-            enableHighAccuracy: true,
+            enableHighAccuracy: true, //được sử dụng để yêu cầu việc theo dõi vị trí với độ chính xác cao, được hoạt động như GPS
         },
         tracking: true,
-        projection: mapView.getProjection(),
+        projection: mapView.getProjection(), //gán hệ toạ độ cho vị trí người dùng
     });
 
-    var positionFeature = new ol.Feature();
+    var positionFeature = new ol.Feature();    //tạo một feature mới để hiển thị vị trí của người dùng lên bản đồ
 
-    positionFeature.setStyle(
+    positionFeature.setStyle(    //setStyle cho vị trí người dùng
         new ol.style.Style({
             image: new ol.style.Circle({
                 radius: 6,
@@ -565,19 +565,19 @@
         })
     );
 
-    var accuracyFeature = new ol.Feature();
+    var accuracyFeature = new ol.Feature();    //tạo một feature là buffer bên ngoài của vị trí người dùng
 
-    var currentPositionLayer = new ol.layer.Vector({
+    var currentPositionLayer = new ol.layer.Vector({    //tạo một lớp vector để hiển thị lên map
         map: map,
         source: new ol.source.Vector({
-            features: [accuracyFeature, positionFeature],
+            features: [accuracyFeature, positionFeature],//thêm 2 feature phía trên vào map
         }),
     });
 
-    function handleAutoLocate(coordinates) {
-        positionFeature.setGeometry(coordinates ? new ol.geom.Point(coordinates) : null);
-        accuracyFeature.setGeometry(geolocation.getAccuracyGeometry());
-        mapView.setCenter(coordinates);
+    function handleAutoLocate(coordinates) { //hàm này được gọi để set vị trí cho 2 feature được tạo phía trên
+        positionFeature.setGeometry(coordinates ? new ol.geom.Point(coordinates) : null);    //nếu vị trí được bật thì sẽ thêm vị trí hiển thị lên bản đồ
+        accuracyFeature.setGeometry(geolocation.getAccuracyGeometry());//tạo một vùng buffer xung quanh vị trí người dùng
+        mapView.setCenter(coordinates);//zoom đến vị trí người dùng
         mapView.setZoom(16);
     }
     
@@ -585,42 +585,39 @@
     
 
 
-    async function startAutoLocate(formData) {
-        global.placeCard.hideCard();
-        global.popupController.hidePopup();
-        GISApp.layerController.removeLayer('Point-Searched', map);
+    async function startAutoLocate(formData) {    //hàm được sử dụng khi bắt đầu bật vị trí người dùng
+        global.placeCard.hideCard();//ẩn tất cả các card đang hiển thị
+        global.popupController.hidePopup();//tắt các popup
+        GISApp.layerController.removeLayer('Point-Searched', map);      //gỡ các lớp point search, point clicked
         GISApp.layerController.removeLayer('Point-Clicked', map);
-        const searchResults = document.getElementById('search-results');
+        const searchResults = document.getElementById('search-results');//xoá các input được nhập vào trong ô
         searchResults.innerHTML = '';
         
-        $("#google-search-input").removeClass("hide-search");
-        $("#google-search-input").toggleClass("show-search");
+        $("#google-search-input").removeClass("hide-search");    //có thể bỏ
+        $("#google-search-input").toggleClass("show-search");    //thêm class google search input
         // GISApp.layerController.resetInitMap(map);
         GISApp.layerController.clearSurveyAndNonSurveyLayer(map);
-        location_For_Search = geolocation.getPosition();
-        if(location_For_Search!=undefined){
-            GISApp.googleSearchController.setLocationForSearch(location_For_Search);
-            await handleAutoLocate(location_For_Search);
-            searchFeature(formData, location_For_Search);
-        }else{
-            alert("Please share the location and reload the page!");
+        location_For_Search = geolocation.getPosition();//lấy ra toạ độ vị trí người dùng
+        if(location_For_Search!=undefined){    //nếu toạ độ được bật
+            GISApp.googleSearchController.setLocationForSearch(location_For_Search);//set vị trí của google search
+            await handleAutoLocate(location_For_Search);//Hàm hiển thị lên vị trí người dùng
+            searchFeature(formData, location_For_Search);//lấy dữ liệu tại điểm xung quanh người dùng
+        }else{    //nếu toạ đồ không được bật
+            alert("Please share the location and reload the page!");//thông báo cho người dùng bật vị trí
             setTimeout(function() {
                 const button = document.getElementById('btnCrosshair');
                 button.click();
-                searchFeature(formData,[8721661.991552157, 1974824.6367594642]);
+                searchFeature(formData,[8721661.991552157, 1974824.6367594642]);//chạy hàm để hiển thị lại vị trí mặc định
                 },300)
-                
         }
-        
-        
         // location_For_Search = [8715659.118891492, 1973895.075943143];
     };
-
-    function stopAutoLocate() {
+    
+    function stopAutoLocate() { //tắt vị trí của người dùng
         // $("#google-search-input").removeClass("show-search");
         // $("#google-search-input").toggleClass("hide-search");
-        clearInterval(intervalAutoLocate);
-        positionFeature.setGeometry(null);
+        clearInterval(intervalAutoLocate);//có thể bỏ
+        positionFeature.setGeometry(null);//set null cho 2 feature để ẩn vị trí người dùng
         accuracyFeature.setGeometry(null);
     };
     //  End Live Location Feature
