@@ -817,11 +817,11 @@
         pointSearchLayer.getSource().addFeatures(pointList);
     }
     
-    function addLabelLayer(map, label, feature, mouseCoords) { //hàm này tạo label khi hover vào đối tượng trên map
+    function addLabelLayer(map, label, feature, mouseCoords) { //hàm này tạo label khi hover vào đối tượng trên map (tham số: map, tên layer, feature, toạ độ tại vị trí chuột)
         var vectorSource = new ol.source.Vector({
             projection: 'EPSG:900913',
         });
-        vectorSource.addFeature(feature);
+        vectorSource.addFeature(feature);	//thêm feature vào src vector
         var labelVectorLayer = new ol.layer.Vector({
             source: vectorSource,
             style: new ol.style.Style({
@@ -836,14 +836,14 @@
                         width: 2,
                     }),
                 }),
-                geometry: new ol.geom.Point(mouseCoords)
+                geometry: new ol.geom.Point(mouseCoords) 	//tạo điểm tại vị trí chuột để hiển thị layer
             }),
             name: 'Label'
         });
         map.addLayer(labelVectorLayer);
     }
     
-    function addHighlightLineLayer (map, feature) {
+    function addHighlightLineLayer (map, feature) { //zoom đến vị trí khi hover vào feature, hightlight đối tượng được hover vào
 		let zoom = map.getView().getZoom();
         let width = zoom < 9 ? 4.5
                     : zoom < 10 ? 4
@@ -869,7 +869,7 @@
         map.addLayer(highlightLineLayer);
     }
 
-    function addMetroPopupLayer(map) {
+    function addMetroPopupLayer(map) { //hàm này để hiển thị các popup của metro (không còn sử dụng)
         var mapURL = MAP_BASE_URL + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gis:Metro_locations&outputFormat=application%2Fjson";
         var svgIcon = new Image();
         svgIcon.src = apiUrl + '/public/webgis/images/popup-2.png';
