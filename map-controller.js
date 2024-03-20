@@ -418,19 +418,19 @@
         var placeSearchFeature = getFeatureByClick(evt, 'Point-Searched');
         // var metroData = await getDataFromGeoserver(evt, "Metro_locations");
         
-        if (metroFeature) {
+        if (metroFeature) {    //nếu tại điểm click tồn tại metroFeature
             var metroName = metroFeature.get('name');
             global.metroCard.removeCard(metroName);
-            global.metroCard.initCard(map, metroName, evt.coordinate);
+            global.metroCard.initCard(map, metroName, evt.coordinate);    //thêm popup ở điểm click
             return;
         }
         
-        if (buildingFeature) {
+        if (buildingFeature) {    //nếu tại điểm click có chứa building Feature
             var features = buildingFeature.get('features');
             
-            if (features.length > 1) return;
+            if (features.length > 1) return; //nếu tại điểm đó là icon cluster return none
             
-            var gis_id = features[0].get('gis_id');
+            var gis_id = features[0].get('gis_id');//nếu điểm đó bằng 1 thì sẽ lấy dữ liệu từ trường đó để hiển thị popup
             //await setPopupLocation(location_For_Search)
             
             global.popupController.showPopup(evt.coordinate, [gis_id]);
@@ -438,7 +438,7 @@
             return;
         }
         
-        if (placeSearchFeature) {
+        if (placeSearchFeature) {    //nếu điểm click là điểm search từ google API thì hiển thị card
             
             var placeId = placeSearchFeature.get('place_id');
             await setPopupLocation(location_For_Search)
@@ -449,7 +449,7 @@
         
         var idList = [];
         
-        var url = apiUrl+"/surveyor/webgis/handle-click-on-map";
+        var url = apiUrl+"/surveyor/webgis/handle-click-on-map";    //gọi api để lấy ra được uniq_id tại điểm click
         var csrfToken = $('#csrf-token').attr('content');
         
         await $u.ajaxRequest('POST', url,
@@ -458,7 +458,7 @@
                     try {
                         var result = responseInner.message;
                         result.forEach((data) => {
-                            idList.push(data.uniq_id)
+                            idList.push(data.uniq_id)//lặp qua data sau đó gán data và idList
                         })
                     } catch (err) {
                         console.log(err)
@@ -466,44 +466,44 @@
                 }
             }
         );
-        global.popupController.showPopup(evt.coordinate, idList);
+        global.popupController.showPopup(evt.coordinate, idList); //hiển thị popup với idList
 
-        if (idList.length !== 0) {
+        if (idList.length !== 0) {    //Không được sử dụng
             // callApiUpdateBuldingStyle(idList);
-        } else {
-            var coor = evt.coordinate;
+        } else {        //nếu không nằm trong bất cứ feature nào thì sẽ hiển thị điểm point-clicked
+            var coor = evt.coordinate;    //lấy ra toạ độ điểm click (location_for_search)
             var coor4326 = ol.proj.transform(coor,'EPSG:900913', 'EPSG:4326');
-            var point = new ol.Feature({
+            var point = new ol.Feature({    //tạo một feature tại điểm click
                 geometry: new ol.geom.Point(coor),
-                label: `${coor4326[0]} , ${coor4326[1]}`
+                label: `${coor4326[0]} , ${coor4326[1]}` //tạo label
             });
 
-            global.popupController.hidePopup();
-            GISApp.layerController.addPointClickedLayer(map, point);
+            global.popupController.hidePopup(); //ẩn popup đang hiển thị
+            GISApp.layerController.addPointClickedLayer(map, point);    //thêm một điểm click mới
         }
     });
     
-    map.on('pointermove', (evt) => {
-        GISApp.layerController.removeLayer('Label', map);
-        GISApp.layerController.removeLayer('Highlight', map);
+    map.on('pointermove', (evt) => {    //sự kiện di chuyển chuột vào đối tượng
+        GISApp.layerController.removeLayer('Label', map);//gỡ các label hiện tại ra khỏi map
+        GISApp.layerController.removeLayer('Highlight', map);    //gỡ các hightlight hiện tại ra khỏi map
         
-        var layerVector = ['ORR Boundary', 'RRR', 'Metro Proposed Line', 'Link Road'];
+        var layerVector = ['ORR Boundary', 'RRR', 'Metro Proposed Line', 'Link Road']; //tạo một list gồm các layer hiển thị hightlight khi hover vào
         var feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
-            return feature;
+            return feature; //lấy ra feature khi hover vào điểm đó
         });
     
-        if (feature) {
-            if (layerVector.includes(feature.get('title'))) {
+        if (feature) {    //nếu feature tồn tại
+            if (layerVector.includes(feature.get('title'))) { //lấy ra đối tượng có tile nằm trong list layerVector
                 
-                var label = feature.get('name');
-                var mouseCoords = evt.coordinate;
-                var hoverFeature = feature.clone();
+                var label = feature.get('name');    //lấy ra name của feature
+                var mouseCoords = evt.coordinate;    //toạ độ chuột
+                var hoverFeature = feature.clone();    //tạo một bản sao của lớp feature đó
                 
-                GISApp.layerController.addLabelLayer(map, label, hoverFeature, mouseCoords)
-                GISApp.layerController.addHighlightLineLayer(map, hoverFeature)
+                GISApp.layerController.addLabelLayer(map, label, hoverFeature, mouseCoords)    //thêm lable tại điểm chuột
+                GISApp.layerController.addHighlightLineLayer(map, hoverFeature)    //hightlight đối tượng được thêm vào
                 
             }
-        } else {
+        } else {    //nếu điểm chuột không có feature thì gỡ các lớp lable
             GISApp.layerController.removeLayer('label', map);
         }
     });
