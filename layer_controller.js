@@ -10,133 +10,7 @@
     var mapBackgroundLayers = [];//bỏ
     var mapNeopolishLayers = [];//bỏ
 
-    function createlayer(mapURL, layerObj) {//hàm tạo layer từ layer data truyền vào
-        tile = !!layerObj.tile;//lấy giá trị tile trong layerObj được truyền vào (boolean)
-        var layer = null;
-        var source = null;
-        var styles = layerObj.styles || undefined;//nếu style tồn tại thì lấy ngược lại undefine
-        var metroFeatures = []//bỏ
-
-        var params = { //tạo một biến param để sử dụng cho WMS
-            LAYERS: layerObj.layers,//lấy tên layer để gán vào LAYERS
-            SRS: layerObj.srs || global.appConfig.mapProjection, //lấy projection mặc định 
-            VERSION: layerObj.serviceVersion,//lấy version của geoserver
-            STYLES: styles
-        }
-        
-		if(layerObj.vector) {//nếu vector tồn tại
-			mapURL = MAP_BASE_URL + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + layerObj.geserver_id + "&outputFormat=application%2Fjson"; //lấy dữ liệu từ geoserver
-			
-			layer = new ol.layer.Vector({//tạo một vector mới
-			    title: layerObj.title,
-			    visible: !!layerObj.visible,
-			    source: new ol.source.Vector({				 
-			        url: mapURL,
-				    format: new ol.format.GeoJSON()
-			    }),
-			    style: function(feature) {
-			        if (layerObj.type === 'Point') {
-			            return new ol.style.Style({
-    			            image: new ol.style.Circle({
-                                radius: 6,
-                                fill: new ol.style.Fill({
-                                    color: layerObj.fillColor,
-                                }),
-                                stroke: new ol.style.Stroke({
-                                    color: layerObj.fillStroke,
-                                    width: 2,
-                                }),
-                            })
-			            })
-			        } else if (layerObj.type === 'LineString') {
-			            let map = global.mapController.map
-			            let zoom = map.getView().getZoom();
-			            let width = zoom < 9 ? 4.5
-			                        : zoom < 10 ? 4
-			                        : zoom < 11 ? 3.5
-			                        : zoom < 12 ? 3
-			                        : 2.5
-			            
-			            let name = feature.get('name')
-			            let style = layerObj.styleFeature[name]
-			            return new ol.style.Style({
-                            stroke: new ol.style.Stroke({
-                                color: style,
-                                width: width,
-                            })
-                        });
-			        } else if (layerObj.type === 'Polygon') {
-			            return new ol.style.Style({
-                            stroke: new ol.style.Stroke({
-                                color: layerObj.fillStroke,
-                                width: layerObj.fillWidth,
-                            })
-                        });
-			        }
-			        
-			    },
-			    name: layerObj.name
-			});
-			layer.getSource().on('addfeature', function (event) {
-                var feature = event.feature;
-                feature.set('title', layerObj.title);
-            });
-		} else {
-		    var layerNames = ["Neopolish", "Neopolish 2"]
-		    var layerName = layerObj.name
-		  //  if (layerNames.includes(layerName)) return;
-            // Handle Source
-            if (layerObj.GWCservice === 'WMTS') {//nếu GWCservice là WMTS
-                
-                source = new ol.source.XYZ({//tạo source XYZ
-                    url: mapURL + global.appConfig.WMTSService +
-                        `layer=${layerObj.geserver_id}` + 
-                        `&style=` + 
-                        `&tilematrixset=EPSG%3A900913` + 
-                        `&Service=WMTS` + 
-                        `&Request=GetTile` + 
-                        `&Version=1.0.0&` +
-                        `Format=image%2Fpng` + 
-                        `&TileMatrix=EPSG%3A900913%3A{z}&TileCol={x}&TileRow={y}` + 
-                        `&exceptions=application%2Fvnd.ogc.se_xmls`,
-                    crossOrigin: 'anonymous'
-                })
-            }
-            else {//nếu không là WMTS
-                source = new ol.source.TileWMS({//thêm các param vào tileWMS
-                    url: mapURL + global.appConfig.WMSService,
-                    params: params,
-                    serverType: layerObj.serverType || 'geoserver'
-                })
-            }
-            // Handle Layer Tile
-			if (tile) {//nếu tile là true
-
-            layer = new ol.layer.Tile({//tạo một Tile 
-                title: layerObj.title,
-                visible: !!layerObj.visible,
-                source: source
-            });
-
-			} else {//Ngược lại
-
-				layer = new ol.layer.Image({//Tạo một imag
-					title: layerObj.title,
-					visible: !!layerObj.visible,
-					source: new ol.source.ImageWMS({
-						url: mapURL,
-						params: params,
-						serverType: layerObj.serverType || 'geoserver'
-					})
-				})
-			}
-		}
-
-        return layers[layerObj.id] = layer;//trả về các layer trong các key id layer
-    }
-
-
-    function initBackgroundLayers() { //hàm tạo các lớp nền
+	function initBackgroundLayers() { //hàm tạo các lớp nền
 
         // var roadmapLayer = new olgm.layer.Google({
         //     title: "Google street map",
@@ -230,7 +104,6 @@
         return mapBackgroundLayers = [baseLayers];//hàm trả về một list các layer
 
     }
-    
     function initRasterLayers(layersData, layerTitle) {//hàm tạo các layer có kiểu là raster
         if (layersData) {//nếu layersData tồn tại
             var layerList = [];
@@ -355,6 +228,131 @@
        
        return true;
         
+    }
+
+	function createlayer(mapURL, layerObj) {//hàm tạo layer từ layer data truyền vào
+        tile = !!layerObj.tile;//lấy giá trị tile trong layerObj được truyền vào (boolean)
+        var layer = null;
+        var source = null;
+        var styles = layerObj.styles || undefined;//nếu style tồn tại thì lấy ngược lại undefine
+        var metroFeatures = []//bỏ
+
+        var params = { //tạo một biến param để sử dụng cho WMS
+            LAYERS: layerObj.layers,//lấy tên layer để gán vào LAYERS
+            SRS: layerObj.srs || global.appConfig.mapProjection, //lấy projection mặc định 
+            VERSION: layerObj.serviceVersion,//lấy version của geoserver
+            STYLES: styles
+        }
+        
+		if(layerObj.vector) {//nếu vector tồn tại
+			mapURL = MAP_BASE_URL + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + layerObj.geserver_id + "&outputFormat=application%2Fjson"; //lấy dữ liệu từ geoserver
+			
+			layer = new ol.layer.Vector({//tạo một vector mới
+			    title: layerObj.title,
+			    visible: !!layerObj.visible,
+			    source: new ol.source.Vector({				 
+			        url: mapURL,
+				    format: new ol.format.GeoJSON()
+			    }),
+			    style: function(feature) {
+			        if (layerObj.type === 'Point') {
+			            return new ol.style.Style({
+    			            image: new ol.style.Circle({
+                                radius: 6,
+                                fill: new ol.style.Fill({
+                                    color: layerObj.fillColor,
+                                }),
+                                stroke: new ol.style.Stroke({
+                                    color: layerObj.fillStroke,
+                                    width: 2,
+                                }),
+                            })
+			            })
+			        } else if (layerObj.type === 'LineString') {
+			            let map = global.mapController.map
+			            let zoom = map.getView().getZoom();
+			            let width = zoom < 9 ? 4.5
+			                        : zoom < 10 ? 4
+			                        : zoom < 11 ? 3.5
+			                        : zoom < 12 ? 3
+			                        : 2.5
+			            
+			            let name = feature.get('name')
+			            let style = layerObj.styleFeature[name]
+			            return new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                color: style,
+                                width: width,
+                            })
+                        });
+			        } else if (layerObj.type === 'Polygon') {
+			            return new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                color: layerObj.fillStroke,
+                                width: layerObj.fillWidth,
+                            })
+                        });
+			        }
+			        
+			    },
+			    name: layerObj.name
+			});
+			layer.getSource().on('addfeature', function (event) {
+                var feature = event.feature;
+                feature.set('title', layerObj.title);
+            });
+		} else {
+		    var layerNames = ["Neopolish", "Neopolish 2"]
+		    var layerName = layerObj.name
+		  //  if (layerNames.includes(layerName)) return;
+            // Handle Source
+            if (layerObj.GWCservice === 'WMTS') {//nếu GWCservice là WMTS
+                
+                source = new ol.source.XYZ({//tạo source XYZ
+                    url: mapURL + global.appConfig.WMTSService +
+                        `layer=${layerObj.geserver_id}` + 
+                        `&style=` + 
+                        `&tilematrixset=EPSG%3A900913` + 
+                        `&Service=WMTS` + 
+                        `&Request=GetTile` + 
+                        `&Version=1.0.0&` +
+                        `Format=image%2Fpng` + 
+                        `&TileMatrix=EPSG%3A900913%3A{z}&TileCol={x}&TileRow={y}` + 
+                        `&exceptions=application%2Fvnd.ogc.se_xmls`,
+                    crossOrigin: 'anonymous'
+                })
+            }
+            else {//nếu không là WMTS
+                source = new ol.source.TileWMS({//thêm các param vào tileWMS
+                    url: mapURL + global.appConfig.WMSService,
+                    params: params,
+                    serverType: layerObj.serverType || 'geoserver'
+                })
+            }
+            // Handle Layer Tile
+			if (tile) {//nếu tile là true
+
+            layer = new ol.layer.Tile({//tạo một Tile 
+                title: layerObj.title,
+                visible: !!layerObj.visible,
+                source: source
+            });
+
+			} else {//Ngược lại
+
+				layer = new ol.layer.Image({//Tạo một imag
+					title: layerObj.title,
+					visible: !!layerObj.visible,
+					source: new ol.source.ImageWMS({
+						url: mapURL,
+						params: params,
+						serverType: layerObj.serverType || 'geoserver'
+					})
+				})
+			}
+		}
+
+        return layers[layerObj.id] = layer;//trả về các layer trong các key id layer
     }
 
     function addParcelLayer(layerName, geomList, map, styleFill, styleLine) {
