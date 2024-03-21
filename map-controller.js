@@ -668,7 +668,7 @@
     var gis_id;
     var assnn_no;
 
-    $("#tabs-nei-open").click(function () {
+    $("#tabs-nei-open").click(function () {    //phần này không biết được thực thi ở đâu , công dụng của hàm này là gì?
         var htmlplotneighbours = "";
         if ($("#tabs-9").html().length > 0)
             return;
@@ -1171,11 +1171,11 @@
          var defaultSurveyStyle = survey[0].getStyle();
          var defaultNonSurveyStyle = survey[1].getStyle();
         
-        $("#btnSearch").click(function () {  
-            var view = map.getView();
-            var viewCenter = view.getCenter();
-            var formData = $('#searchFilter').serializeArray();
-                searchFeature(formData, viewCenter);
+        $("#btnSearch").click(function () {    //bắt sự kiện nút search, để lấy dữ liệu
+            var view = map.getView();    //lấy view map hiện tại
+            var viewCenter = view.getCenter();    //lấy toạ độ trung tâm của view map hiện tại
+            var formData = $('#searchFilter').serializeArray();    //lấy form dữ liệu được input vào
+                searchFeature(formData, viewCenter);    //gọi hàm search theo vị trí được lấy hiện tại
             //     var newZoom = global.appConfig.defaultZoom;
             //     view.animate({
             //         zoom: newZoom,
@@ -1195,15 +1195,15 @@
         // survey[1].setVisible(false)
         // survey[0].setVisible(false)
         
-        // //filter survey
-        // var selectSurvey = document.getElementById('surveyed_id')
+        // //filter survey                //Phần này dùng để filter survey và non survey trên front-end
+        // var selectSurvey = document.getElementById('surveyed_id')   
         // var SurveyValue = selectSurvey.value
         
         // //filter sale rent
         // var SaleRent = document.getElementById('sale_rent')
         // var SaleRentValue = SaleRent.value
-        // var SaleSelected= SaleRentValue==1?1:0
-        // var RentSelected= SaleRentValue==2?1:0 
+        // var SaleSelected= SaleRentValue==1?1:0    //nếu sale trả về là 1 thì set SaleSelected là 1 ngược lại là 0
+        // var RentSelected= SaleRentValue==2?1:0     //nếu rent trả về là 2 thì set RentSelected là 1 ngược lại là 0 
     
         
         
@@ -1220,7 +1220,7 @@
         // var catIdValue = catId.value
         // //Filter GISID
         // //Style filter
-        // const baseStyleSurveyPolygon = new ol.style.Style({
+        // const baseStyleSurveyPolygon = new ol.style.Style({        //tạo style cho 2 lớp survey và non survey
         //                                 fill: new ol.style.Fill({
         //                                     color: 'rgba(0, 255, 0, 0.1)'
         //                                 }),
@@ -1237,23 +1237,23 @@
         //                                 })
         //                                 });
           
-        // if(SurveyValue == 1 || SurveyValue == ""){
-        //     var formData = $('#searchFilter').serializeArray();
-        //         searchFeature(formData, viewCenter);
-        //     var filterStyle = (feature) => {
-        //         var properties = feature.getProperties();
+        // if(SurveyValue == 1 || SurveyValue == ""){    //nếu SurveyValue truyền vào là 1 hoặc không truyền vào
+        //     var formData = $('#searchFilter').serializeArray();    //lấy dữ liệu của form data
+        //         searchFeature(formData, viewCenter);    //gọi hàm search để lấy dữ liệu
+        //     var filterStyle = (feature) => {    //tạo một function để gán style
+        //         var properties = feature.getProperties();    //lấy ra properties của feature
         //         // console.log("unit_type_id "+properties['unit_type_id'])
         //         // console.log("cat_id "+properties['cat_id'])
         //         // console.log("pincode "+properties['pincode'])
-        //         let SurveyCondition = true; 
+        //         let SurveyCondition = true;     //đặt flag cho điều kiện
         //         let SaleCondition = true; 
         //         let RentCondition = true; 
 
         //         // Check if each property exists and meets the condition. If it does not exist, this part is skipped.
-        //         if (unitTypeValue !== undefined && unitTypeValue !=="") {
-        //           SurveyCondition = SurveyCondition && (properties['unit_type_id'] === parseInt(unitTypeValue));
+        //         if (unitTypeValue !== undefined && unitTypeValue !=="") {    //Kiểm tra xem unitTypeValue có được nhập hay không, nếu được nhập
+        //           SurveyCondition = SurveyCondition && (properties['unit_type_id'] === parseInt(unitTypeValue));    //kiểm tra xem biến SurveyCondition và properties['unit_type_id'] có tồn tại không nếu có thì true
         //         }
-        //         if (catIdValue !== undefined && catIdValue !=="" ) {
+        //         if (catIdValue !== undefined && catIdValue !=="" ) {    //Kiểm tra tiếp tục với Surveycondition true với trường cat_id
         //           SurveyCondition = SurveyCondition && (properties['cat_id'] === parseInt(catIdValue));
         //         }
         //         if (pincodeValue !== undefined && pincodeValue !=="") {
@@ -1266,7 +1266,7 @@
         //           RentCondition = SurveyCondition && (properties['forrent'] === RentSelected);
         //         }
                 
-        //         if (SaleCondition) {
+        //         if (SaleCondition) { //trả về nếu SaleCondition true 
         //           return baseStyleSurveyPolygon
         //         }
         //         if (RentCondition) {
@@ -1279,7 +1279,7 @@
         //     survey[1].setStyle(filterStyle);
             
         // }
-        // if(SurveyValue == 2 || SurveyValue == "") {
+        // if(SurveyValue == 2 || SurveyValue == "") {    //tiếp theo với trường hợp chọn Non Survey
         //     var filterStyle =(feature)=>{
         //         var properties = feature.getProperties();
         //         let NoSurveyCondition = true; 
@@ -1298,25 +1298,25 @@
         //             return baseStyleNonSurveyPolygon;           
         //         }      
         //     }   
-        //     survey[0].setVisible(true)
+        //     survey[0].setVisible(true)    //set Visible và style lại cho nonsurvey
         //     survey[0].setStyle(filterStyle)
             
-        //     var buildingLayer = map.getLayers().getArray().find(layer => layer.get('name') === "Survey Point");
+        //     var buildingLayer = map.getLayers().getArray().find(layer => layer.get('name') === "Survey Point");    //nếu chọn non survey thì lớp building sẽ được gỡ ra khỏi bản đồ
         //     map.removeLayer(buildingLayer)
             
         // }
     });
 
 
-        $('#btnReset').click(function(){
-            $('#searchFilter')[0].reset();
-            $('.filter-data').hide();
-            var formData = $('#searchFilter').serializeArray();
-            searchFeature(formData, global.appConfig.defaultCenter);
-            mapView.setCenter(global.appConfig.defaultCenter);
+        $('#btnReset').click(function(){    //sự kiện nút Reset 
+            $('#searchFilter')[0].reset();    //xoá hết những input được nhập trong form
+            $('.filter-data').hide(); //ẩn hết các trường được filter
+            var formData = $('#searchFilter').serializeArray();    //lấy form data hiện tại là null
+            searchFeature(formData, global.appConfig.defaultCenter); //lấy dữ liệu tại điểm mặc định
+            mapView.setCenter(global.appConfig.defaultCenter);    //set center đến khu vực mặc định
             // global.placeCard.hideCard();
             // global.popupController.hidePopup();
-            GISApp.layerController.removeLayer('Point-Searched', map);
+            GISApp.layerController.removeLayer('Point-Searched', map);    //gỡ các lớp Point-Search-Clicked
             GISApp.layerController.removeLayer('Point-Clicked', map);
             // $('#searchFilter')[0].reset();
             // $('.filter-data').hide();
@@ -1331,7 +1331,7 @@
             // searchFeature(formData,global.appConfig.defaultCenter);
         })
         
-        $('#searchInput').keypress(function (event) {
+        $('#searchInput').keypress(function (event) { //hàm này sẽ bắt sự kiện tìm kiếm khi nhập vào nút Enter (hiện tại không hoạt động)
             var keycode = (event.keyCode ? event.keyCode : event.which);
             if (keycode == '13') {
                 searchFeature();
@@ -1339,7 +1339,7 @@
         });
     });
     
-    function FilterGisId(GisId, GisIdNonSurvey){
+    function FilterGisId(GisId, GisIdNonSurvey){ //hàm này được tạo để hiển thị dữ liệu survey và nonsurvey lấy dữ liệu từ gis_id của building
         const baseStyleSurveyPolygon = new ol.style.Style({
                                         fill: new ol.style.Fill({
                                             color: 'rgba(0, 255, 0, 0.1)'
@@ -1356,16 +1356,16 @@
                                             color:'rgb(255, 0, 0)'
                                         })
                                         });                                
-        var filterStyle = (feature) => {
-            var properties = feature.getProperties();
+        var filterStyle = (feature) => { //tạo một function để lấy các feature và gán style cho các feature có chứa properties đó
+            var properties = feature.getProperties();    //lấy ra properties của feature
             // GisId.forEach(data=>{
                     // properties['gis_id'] === data
                   
             // })
-            if(GisId.includes(properties['gis_id'])){
-                return baseStyleSurveyPolygon;
+            if(GisId.includes(properties['gis_id'])){    //kiểm tra xem properties['gis_id'] có tồn tại trong GisId trả về hay không
+                return baseStyleSurveyPolygon;    //nếu có trả về các feature có properties tồn tại và style survey
             }
-            if(GisIdNonSurvey.includes(properties['gis_id'])){
+            if(GisIdNonSurvey.includes(properties['gis_id'])){    //kiểm tra xem properties['gis_id'] có tồn tại trong GisIdNonSurvey trả về hay không
                 if(GisIdNonSurvey.length === 1){
                     zoomToNonSurveyPolygon(map,feature,GisIdNonSurvey.join(','));
                 }   
