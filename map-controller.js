@@ -1366,99 +1366,96 @@
                 return baseStyleSurveyPolygon;    //nếu có trả về các feature có properties tồn tại và style survey
             }
             if(GisIdNonSurvey.includes(properties['gis_id'])){    //kiểm tra xem properties['gis_id'] có tồn tại trong GisIdNonSurvey trả về hay không
-                if(GisIdNonSurvey.length === 1){
-                    zoomToNonSurveyPolygon(map,feature,GisIdNonSurvey.join(','));
+                if(GisIdNonSurvey.length === 1){    //nếu GisIdNonSurvey trả về một đối tượng
+                    zoomToNonSurveyPolygon(map,feature,GisIdNonSurvey.join(','));    //gọi hàm zoom đến đối tượng đó và hiển thị popup (đang failed)
                 }   
                 return baseStyleNonSurveyPolygon;
             }
         }
-        survey[1].setVisible(true)
-        survey[1].setStyle(filterStyle);
+        survey[1].setVisible(true)    //set hiển thị lên cho các lớp
+        survey[1].setStyle(filterStyle);    //gán style cho survey và non survey
         survey[0].setStyle(filterStyle);
         
     }
     
-    function searchFeature(formData, coordinates = null) {     
+    function searchFeature(formData, coordinates = null) {     //hàm lấy dữ liệu input và gọi dữ liệu từ API
             //  Get the current extent of the map
-            var extent = map.getView().calculateExtent(map.getSize());
+            var extent = map.getView().calculateExtent(map.getSize()); //lấy view để tính toán ra giới hạn toạ độ của View hiện tại
             var minX = extent[0];
             var minY = extent[1];
             var maxX = extent[2];
             var maxY = extent[3];
             
-            var urlDestination = apiUrl+"/surveyor/webgis/get-search-feature";
+            var urlDestination = apiUrl+"/surveyor/webgis/get-search-feature";    //tạo url 
             sourceGeomBuilding.clear();
 
-            var postData = formData;
+            var postData = formData;    //tạo một biến chứa các input được gửi về API
             
-            postData.push({name: 'minX', value: minX})
+            postData.push({name: 'minX', value: minX})    //thêm các giới hạn toạ độ
             postData.push({name: 'minY', value: minY})
             postData.push({name: 'maxX', value: maxX})
             postData.push({name: 'maxY', value: maxY})
-            postData.push({name: 'latLive', value: coordinates !== null ? coordinates[0] : null})
+            postData.push({name: 'latLive', value: coordinates !== null ? coordinates[0] : null})    //thêm toạ độ hiện tại gửi về API
             postData.push({name: 'lngLive', value: coordinates !== null ? coordinates[1] : null})
             
-            $u.ajaxRequest('POST', urlDestination,
+            $u.ajaxRequest('POST', urlDestination,    //sử dụng jquery Ajax để gọi API getSearchedFeature
                 postData, async function (response) {
                     var propertiesCount = response.message.filter((res) => 
-                        res.surveyed === "surveyed"
+                        res.surveyed === "surveyed"    //đếm số lượng properties
                     ).length;
                     
-                    if (response.message.length == '21500') {
-                            $("#properties_count").text(propertiesCount); 
-                        } else {
-                            $("#properties_count").text(propertiesCount);
-                        }
+                    // if (response.message.length == '21500') {
+                    //         $("#properties_count").text(propertiesCount); 
+                    //     } else {
+                    //         $("#properties_count").text(propertiesCount);
+                    //     }
                     
-                    if (Array.isArray(response.message)) {
+                    if (Array.isArray(response.message)) {    //kiểm tra xem message có phải là mảng hay không
                         
-                        $("#properties_count").text(propertiesCount);
+                        $("#properties_count").text(propertiesCount);    //gán số properties được tìm thấy
                         $("#countdiv").show();
-                        var ids_survey = [];
+                        var ids_survey = [];    //tạo các mảng để chứa gis_id của các lớp
                         var ids_not_survey = [];
                         var surveylayer = [];
                         
-                        for (i = 0; i < response.message.length; i++) {
-                            let item = response.message[i];
-                            let id = item.gis_id;
-                            let survey_status = item.surveyed;
+                        for (i = 0; i < response.message.length; i++) {    //lặp qua các phần tử trong mảng
+                            let item = response.message[i];    //lấy các phần tử trong massege gán vào biến item(chứa các geoJson từ API)
+                            let id = item.gis_id;    //lấy ra gis_id
+                            let survey_status = item.surveyed;    //lấy ra trạng thái survey hoặc nonsurvey
                             
-                            if (survey_status === "surveyed") {
-                                ids_survey.push(id)
-                                surveylayer.push(item)
+                            if (survey_status === "surveyed") { // nếu trạng thái là surveyed
+                                ids_survey.push(id)    //push các id vào ids_survey
+                                surveylayer.push(item)    //gán các item chứa buidling list vào surveylayer
                              } 
-                            else if (survey_status === "not-surveyed") {
-                                ids_not_survey.push(id)
+                            else if (survey_status === "not-surveyed") { //ngược lại nếu là nonsurvey
+                                ids_not_survey.push(id)    //gán các id nonsurvey vào mảng ids_not_survey
                             }
-                                
-                                
-                            // ids.push(id);
                         } 
-                        FilterGisId(ids_survey, ids_not_survey)
+                        FilterGisId(ids_survey, ids_not_survey) //chạy hàm filter các lớp theo gisId được gọi
                         // Handle Building Styles
                         var survey_line_style = '#00ff00'
-                        var survey_polygon_point = 'Survey Point'
+                        var survey_polygon_point = 'Survey Point'    //tạo tên cho layer building point
                         var survey_polygon_name = 'Survey Polygon'
                         var survey_fill_style ='rgba(0, 255, 0, 0.1)'
-                        var survey_url = apiUrl+"/surveyor/webgis/update-building-layer";
+                        var survey_url = apiUrl+"/surveyor/webgis/update-building-layer"; //không sử dụng
                         
                         // var non_survey_line_style = '#ff0000'
                         // var non_survey_polygon_name = 'Not Survey Polygon'
                         // var non_survey_fill_style = 'rgba(255, 0, 0, 0.1)'
                         // var non_survey_url = apiUrl+"/surveyor/webgis/update-non-survey-layer";
                         
-                        GISApp.layerController.clearSurveyAndNonSurveyLayer(map);
+                        GISApp.layerController.clearSurveyAndNonSurveyLayer(map); //clear các lớp đang hiển thị (non survey, survey)
                         GISApp.layerController.handleHighlightLayer(surveylayer, map, survey_fill_style, survey_line_style, survey_polygon_name, survey_polygon_point);
                         //await updateHighlightLayer(survey_url, ids_survey, postData, survey_fill_style, survey_line_style, survey_polygon_name, survey_polygon_point);
                     
                         //await updateHighlightLayer(non_survey_url, ids_not_survey, postData, non_survey_fill_style, non_survey_line_style, non_survey_polygon_name, null);
                         
-                        if (coordinates === null) {
+                        if (coordinates === null) { //nếu không có toạ độ được đưa vào
                             setTimeout(() =>  {
-                                zoomToBuildingLayer(map); 
+                                zoomToBuildingLayer(map); //zoom đến layer building point
                             }, 2000) 
                         }
-                    } else {
+                    } else {    //hiện tại hàm này không chạy 
                         var n = noty({
                                 text: 'No result!',
                                 type: 'notification',
@@ -1472,8 +1469,8 @@
                             });
                         n.close();
                     }
-                }, function () {
-                    var n = noty({
+                }, function () { //Nếu không tìm thấy dữ liệu sẽ thông báo Error Warning
+                    var n = noty({    //sử dụng thư viện noty để hiện thị thông báo
                     text: 'Error warning!',
                     type: 'error',
                     layout: 'center',
@@ -1521,25 +1518,25 @@
                 }
             })
     }
-    function zoomToBuildingLayer(map) {
-        var buildingLayer = map.getLayers().getArray().find(layer => layer.get('name') === "Survey Point");
+    function zoomToBuildingLayer(map) {    //hàm này được sử dụng để zoom đến lớp building layer
+        var buildingLayer = map.getLayers().getArray().find(layer => layer.get('name') === "Survey Point");    //lấy layer Survey Point trong map
         console.log(map.getLayers().getArray());
-        if (buildingLayer) {
-            var buildingSource = buildingLayer.getSource();
-            var buildingFeature = buildingSource.getFeatures();
+        if (buildingLayer) {    //nếu layer tồn tại
+            var buildingSource = buildingLayer.getSource(); //lấy ra source
+            var buildingFeature = buildingSource.getFeatures();    //lấy ra fearture
             buildingLayer.setZIndex(7)
             if (buildingFeature.length === 1) return;
             
-            var extent = buildingSource.getExtent();
+            var extent = buildingSource.getExtent();    //lấy ra giới hạn khung toạ độ
 
-            map.getView().fit(extent, { padding: [10, 10, 10, 10] });
+            map.getView().fit(extent, { padding: [10, 10, 10, 10] });    //zoom đến khu vực đó
         }
     }
-    //Add scaleLine, Overviewmap
+    //Add scaleLine, Overviewmap //thêm ngược lại phía trên chỗ thêm control
     map.addControl(new ol.control.OverviewMap())
     map.addControl(new ol.control.ScaleLine());
     //Handle search non-survey-polygon
-    function zoomToNonSurveyPolygon(map,feature,id){
+    function zoomToNonSurveyPolygon(map,feature,id){ //hàm này đang không chạy đúng
         // var properties = feature.getProperties();
         // var geometry = properties.getGeometry();
         var extent = feature.getExtent();
@@ -1549,46 +1546,46 @@
               
            }
     //Cluster event
-    map.on('click', function(evt) {
+    map.on('click', function(evt) {    //hàm này được sử dụng để zoom đến các đối tượng cluster khi nhấp vào con số đó
         // var cluster = map.getLayers().getArray();
         // var clusterfind = cluster.find(layer=>layer.get('name') === "Survey Point");
-      var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-          console.log(feature)
-        return feature;
+      var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {//lấy pixel tại điểm đang click
+          console.log(feature)//hiển thị các feature tại điểm đang click
+        return feature;    //return các feature đó ra
       });
-      if (feature) {
-        var features = feature.get('features');
-        if (features != undefined && features.length > 1) {
-          var extent = ol.extent.createEmpty();
+      if (feature) {//nếu feature tồn tại
+        var features = feature.get('features'); //lấy các feature ra
+        if (features != undefined && features.length > 1) {    //nếu feature lớn hơn 1 và không undefined
+          var extent = ol.extent.createEmpty(); //set extent về rỗng
           features.forEach(function(feature) {
-            ol.extent.extend(extent, feature.getGeometry().getExtent());
+            ol.extent.extend(extent, feature.getGeometry().getExtent());//lặp qua các feature để set extend cho map 
           });
-          map.getView().fit(extent, {duration: 1000, padding: [50, 50, 50, 50]});
+          map.getView().fit(extent, {duration: 1000, padding: [50, 50, 50, 50]});//zoom đến các điểm cluster
         }
       }
     });
     
     
     // Live Location
-    var isLiveLocation = false;
-    window.addEventListener('DOMContentLoaded', (event) => {
+    var isLiveLocation = false;// có thể bỏ
+    window.addEventListener('DOMContentLoaded', (event) => {    //sự kiện sau khi load xong trang sẽ click vào nút location để hiển thị vị trí hiện tại
         setTimeout(function() {
         const button = document.getElementById('btnCrosshair');
         button.click();
         }, 100)
     });
-    $("#btnCrosshair").click(function () {
-        GISApp.googleSearchController.setMap(map);
-        var formData = $('#searchFilter').serializeArray();
-        var currentSrc = $("#crosshair-image").attr("src");
-        if (currentSrc.endsWith("geo-location.svg")) {
-            $("#crosshair-image").attr("src", apiUrl+"/public/webgis/images/geo-location-clicked.svg");
-            startAutoLocate(formData);
+    $("#btnCrosshair").click(function () {    //sự kiện khi click vào nút btnCrosshair
+        GISApp.googleSearchController.setMap(map);    //setMap(google API)
+        var formData = $('#searchFilter').serializeArray();    //lấy formdata trên khung search
+        var currentSrc = $("#crosshair-image").attr("src");    //thay đổi logo khi click
+        if (currentSrc.endsWith("geo-location.svg")) { //nếu src image kết thúc bằng geo-location.svg
+            $("#crosshair-image").attr("src", apiUrl+"/public/webgis/images/geo-location-clicked.svg");//thay đổi src đã được click
+            startAutoLocate(formData);//chạy hàm bắt đầu lấy vị trí hiện tại
             isLiveLocation = true;
-        } else {
+        } else {//ngược lại
             $("#crosshair-image").attr("src", apiUrl+"/public/webgis/images/geo-location.svg");
-            stopAutoLocate();
-            mapView.setCenter(global.appConfig.defaultCenter);
+            stopAutoLocate(); //chạy hàm dừng lấy vị trí hiện tại
+            mapView.setCenter(global.appConfig.defaultCenter);    //set view lại vị trí mặc định
             mapView.setZoom(global.appConfig.defaultZoom);
             
             isLiveLocation = false;
