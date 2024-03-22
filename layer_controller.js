@@ -23,338 +23,338 @@
         //     visible: false
         // });
 
-        var baseLayers = new ol.layer.Group( //tạo một group chứa các base
-                {title: 'Base Layers', //đặt title " Base Layers"
-                    openInLayerSwitcher: false,// bất cập
-                    visible: true,// set hiển thị
-                    layers://thêm các layer là các lớp nền vào
-                            [
-                                new ol.layer.Tile(
-                                        {title: "Watercolor",
-                                            baseLayer: true,
-                                            visible: false,
-                                            source: new ol.source.Stamen({
-                                                layer: 'watercolor'
-                                            })
-                                        }),
-                                new ol.layer.Tile(
-                                        {title: "Toner",
-                                            baseLayer: true,
-                                            visible: false,
-                                            source: new ol.source.Stamen({
-                                                layer: 'toner'
-                                            })
-                                        }),
-                                new ol.layer.Tile(
-                                        {title: "OSM",
-                                            baseLayer: true,
-                                            source: new ol.source.OSM(),
-                                            visible: false
-                                        }),
-                                new ol.layer.Tile(
-                                        {
-                                            title: "Bing map",
-                                            baseLayer: true,
-                                            visible: false,
-                                            source: new ol.source.BingMaps({
-                                                key: 'As1HiMj1PvLPlqc_gtM7AqZfBL8ZL3VrjaS3zIb22Uvb9WKhuJObROC-qUpa81U5',
-                                                imagerySet: 'AerialWithLabels'
+        var baseLayers = new ol.layer.Group({ //tạo một group chứa các base
+          title: "Base Layers", //đặt title " Base Layers"
+          openInLayerSwitcher: false, // bất cập
+          visible: true, // set hiển thị
+          //thêm các layer là các lớp nền vào
+          layers: [
+            new ol.layer.Tile({
+              title: "Watercolor",
+              baseLayer: true,
+              visible: false,
+              source: new ol.source.Stamen({
+                layer: "watercolor",
+              }),
+            }),
+            new ol.layer.Tile({
+              title: "Toner",
+              baseLayer: true,
+              visible: false,
+              source: new ol.source.Stamen({
+                layer: "toner",
+              }),
+            }),
+            new ol.layer.Tile({
+              title: "OSM",
+              baseLayer: true,
+              source: new ol.source.OSM(),
+              visible: false,
+            }),
+            new ol.layer.Tile({
+              title: "Bing map",
+              baseLayer: true,
+              visible: false,
+              source: new ol.source.BingMaps({
+                key: "As1HiMj1PvLPlqc_gtM7AqZfBL8ZL3VrjaS3zIb22Uvb9WKhuJObROC-qUpa81U5",
+                imagerySet: "AerialWithLabels",
+              }),
+            }),
+            new ol.layer.Tile({
+              title: "Google street map",
+              baseLayer: true,
+              visible: false,
+              source: new ol.source.XYZ({
+                url: "http://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}",
+              }),
+            }),
+            new ol.layer.Tile({
+              title: "Google earth map",
+              baseLayer: true,
+              visible: true,
+              source: new ol.source.XYZ({
+                url: "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+              }),
+            }),
+            new ol.layer.Tile({
+              title: "Satellite Images",
+              baseLayer: true,
+              visible: false,
+              source: new ol.source.TileWMS({
+                url:
+                  MAP_BASE_URL +
+                  "/wms?service=WMS&version=1.1.0&request=GetMap&layers=gis%3Asatellite_image&bbox=8712840.4855%2C1974244.1458%2C8722704.3731%2C1984750.7137&width=721&height=768&srs=EPSG%3A3857&styles=&format=application/openlayers",
+                params: {
+                  LAYERS: "gis:satellite_image",
+                },
+                serverType: "geoserver",
+              }),
+            }),
+          ],
+        });
+        	// return mapBackgroundLayers = [roadmapLayer, hybridlayer, baseLayers];
+        	return mapBackgroundLayers = [baseLayers];//hàm trả về một list các layer
+    	}
+	function initRasterLayers(layersData, layerTitle) {
+    //hàm tạo các layer có kiểu là raster
+    if (layersData) {
+      //nếu layersData tồn tại
+      var layerList = [];
+      layersData.forEach((data) => {
+        //lặp qua các phần tử trong layerData
+        // var layerName = data.name
+        var mapURL = MAP_BASE_URL + global.appConfig.urlGWC; //lấy url từ geoserver
 
-                                            })
+        let source = new ol.source.XYZ({
+          url:
+            mapURL +
+            global.appConfig.WMTSService +
+            `layer=${data.geserver_id}` +
+            `&style=` +
+            `&tilematrixset=EPSG%3A900913` +
+            `&Service=WMTS` +
+            `&Request=GetTile` +
+            `&Version=1.0.0&` +
+            `Format=image%2Fpng` +
+            `&TileMatrix=EPSG%3A900913%3A{z}&TileCol={x}&TileRow={y}` +
+            `&exceptions=application%2Fvnd.ogc.se_xmls`,
+          crossOrigin: "anonymous",
+        });
 
-                                        }),
-                                new ol.layer.Tile(
-                                    {
-                                        title: "Google street map",
-                                        baseLayer: true,
-                                        visible: false,
-                                        source: new ol.source.XYZ({
-                                            url: 'http://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}'
-                                        })
-                                    }
-                                ),
-                                new ol.layer.Tile(
-                                    {
-                                        title: "Google earth map",
-                                        baseLayer: true,
-                                        visible: true,
-                                        source: new ol.source.XYZ({
-                                            url: 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}'
-                                        })
-                                    }
-                                ),
-                                new ol.layer.Tile(
-                                    {
-                                        title:"Satellite Images",
-                                        baseLayer: true,
-                                        visible: false,
-                                        source: new ol.source.TileWMS({
-                                            url: MAP_BASE_URL+'/wms?service=WMS&version=1.1.0&request=GetMap&layers=gis%3Asatellite_image&bbox=8712840.4855%2C1974244.1458%2C8722704.3731%2C1984750.7137&width=721&height=768&srs=EPSG%3A3857&styles=&format=application/openlayers',
-                                            params:{
-                                                'LAYERS':'gis:satellite_image',
-                                            },
-                                        serverType:'geoserver'
-                                        })
-                                    })
-
-                            ]
-                });
-
-        // return mapBackgroundLayers = [roadmapLayer, hybridlayer, baseLayers];
-        return mapBackgroundLayers = [baseLayers];//hàm trả về một list các layer
-
+        let layer = new ol.layer.Tile({
+          title: data.title,
+          visible: !!data.visible,
+          source: source,
+        });
+        layerList.push(layer);
+      });
+      var neopolishLayers = new ol.layer.Group({
+        title: layerTitle,
+        openInLayerSwitcher: false,
+        visible: false, //-----------------------
+        layers: layerList,
+      });
+      return (mapNeopolishLayers = [neopolishLayers]);
     }
-    function initRasterLayers(layersData, layerTitle) {//hàm tạo các layer có kiểu là raster
-        if (layersData) {//nếu layersData tồn tại
-            var layerList = [];
-            layersData.forEach((data) => {//lặp qua các phần tử trong layerData
-                var layerName = data.name
-                var mapURL = MAP_BASE_URL + global.appConfig.urlGWC;//lấy url từ geoserver
-                
-                let source = new ol.source.XYZ({
-                    url: mapURL + global.appConfig.WMTSService +
-                        `layer=${data.geserver_id}` + 
-                        `&style=` + 
-                        `&tilematrixset=EPSG%3A900913` + 
-                        `&Service=WMTS` + 
-                        `&Request=GetTile` + 
-                        `&Version=1.0.0&` +
-                        `Format=image%2Fpng` + 
-                        `&TileMatrix=EPSG%3A900913%3A{z}&TileCol={x}&TileRow={y}` + 
-                        `&exceptions=application%2Fvnd.ogc.se_xmls`,
-                    crossOrigin: 'anonymous'
-                })
-                
-                let layer = new ol.layer.Tile({
-                    title: data.title,
-                    visible: !!data.visible,
-                    source: source
-                });
-                
-                layerList.push(layer)
-            })
-            
-            var neopolishLayers = new ol.layer.Group(
-                {
-                    title: layerTitle,
-                    openInLayerSwitcher: false,
-                    visible: false, //-----------------------
-                    layers: layerList
-                }
-            )
-        
-            return mapNeopolishLayers = [neopolishLayers]
+  }
+
+    function initLayers(layersData) {
+      //Thêm các layer
+
+      if (layersData) {
+        //nếu layersData tồn tại
+
+        var tmpLayersData = {}; //tạo một obj
+
+        var layerGroups = {}; //tạo một obj chứa layerGroups
+
+        var layerGroupByGroups = {};
+
+        for (var i in layersData) {
+          let l = layersData[i]; //tạo l gán cho lớp i
+          tmpLayersData[l.id + "_" + (i + 1)] = l; //tạo ra phần tử trong tmpLayersData["propert:public.HMDA_Master_Plan_1] = l
+
+          layerGroups[l.groupID] = l.groupTitle; //layerGroups["HMDA Master Plan Zones"] = "HMDA Master Plan Zones"
+
+          var group = layerGroupByGroups[l.groupID]; //group = layerGroupByGroups["HMDA Master Plan Zones"]
+
+          if (!group) {
+            //nếu group tồn tại
+
+            /*
+             * create a new group
+             */
+
+            group = layerGroupByGroups[l.groupID] = []; //layerGroupByGroups["HMDA Master Plan Zones"]=[]
+          }
+
+          /*
+           *  and the current layer
+           */
+          group.push(l); //group = [những phần tử trong data layer]
         }
-    }
 
-    function initLayers(layersData) { //Thêm các layer 
+        let layers = []; //tạo một mảng layers rỗng
 
-        if (layersData) {//nếu layersData tồn tại
- 
-            var tmpLayersData = {}; //tạo một obj 
+        for (var groupId in layerGroupByGroups) {
+          //lặp qua các phần tử trong layerGroupByGroups
 
-            var layerGroups = {}; //tạo một obj chứa layerGroups
+          var listOfLayers = layerGroupByGroups[groupId]; //lấy ra các phần tử trong layerGroupByGroups
 
-            var layerGroupByGroups = {};
+          var listOfCreatedLayers = []; //tạo một mảng rỗng
 
-            for (var i in layersData) {
+          if (listOfLayers instanceof Array) {
+            //nếu listOfLayers là một Array
 
-                let l = layersData[i];//tạo l gán cho lớp i
-                tmpLayersData[l.id + "_" + (i + 1)] = l;//tạo ra phần tử trong tmpLayersData["propert:public.HMDA_Master_Plan_1] = l
+            for (var j in listOfLayers) {
+              //lặp qua các key trong listOfLayers
+              var l = listOfLayers[j]; //gán l cho phần tử j trong listOfLayers
 
-                layerGroups[l.groupID] = l.groupTitle;//layerGroups["HMDA Master Plan Zones"] = "HMDA Master Plan Zones"
-
-                var group = layerGroupByGroups[l.groupID];//group = layerGroupByGroups["HMDA Master Plan Zones"]
-
-                if (!group) {//nếu group tồn tại
-
-                    /*
-                     * create a new group
-                     */
-
-                    group = layerGroupByGroups[l.groupID] = [];//layerGroupByGroups["HMDA Master Plan Zones"]=[]
-                }
-
-                /*
-                 *  and the current layer
-                 */
-                group.push(l);//group = [những phần tử trong data layer]
+              if (l.useCache) {
+                //nếu useCache == true
+                listOfCreatedLayers.push(createlayer(GWC_URL, l));
+              } else {
+                //ngược lại nêu useCache == false
+                listOfCreatedLayers.push(createlayer(WMS_URL, l));
+              }
             }
-
-            let layers = [];//tạo một mảng layers rỗng
-
-            for (var groupId in layerGroupByGroups) { //lặp qua các phần tử trong layerGroupByGroups
-
-                var listOfLayers = layerGroupByGroups[groupId];//lấy ra các phần tử trong layerGroupByGroups
-
-                var listOfCreatedLayers = [];//tạo một mảng rỗng
-
-                if (listOfLayers instanceof Array) {//nếu listOfLayers là một Array
-
-                    for (var j in listOfLayers) {//lặp qua các key trong listOfLayers
-                        var l = listOfLayers[j];//gán l cho phần tử j trong listOfLayers
-                        
-                        if(l.useCache){//nếu useCache == true
-                            listOfCreatedLayers.push(createlayer(GWC_URL, l));                            
-                        } else{//ngược lại nêu useCache == false
-                            listOfCreatedLayers.push(createlayer(WMS_URL, l));
-                        }
-                    }
-                    layers.push(//push các layer vào 1 group
-                            new ol.layer.Group({
-                                title: layerGroups[groupId],
-                                openInLayerSwitcher: false,
-                                layers: listOfCreatedLayers
-                            })
-                            );
-                }
-            }
-            return mapVectorLayers = layers;
+            layers.push(
+              //push các layer vào 1 group
+              new ol.layer.Group({
+                title: layerGroups[groupId],
+                openInLayerSwitcher: false,
+                layers: listOfCreatedLayers,
+              })
+            );
+          }
         }
-
+        return (mapVectorLayers = layers);
+      }
     }
 
-    
+	function createlayer(mapURL, layerObj) {
+    //hàm tạo layer từ layer data truyền vào
+    tile = !!layerObj.tile; //lấy giá trị tile trong layerObj được truyền vào (boolean)
+    var layer = null;
+    var source = null;
+    var styles = layerObj.styles || undefined; //nếu style tồn tại thì lấy ngược lại undefine
+    var metroFeatures = []; //bỏ
 
-    function updateParams(layerId, params){
-         
-        var l = layers[layerId];
-        
-        if(!l){
-             return false;
-        }
-        
-        l.getSource().updateParams(params);
-       
-       return true;
-        
-    }
+    var params = {
+      //tạo một biến param để sử dụng cho WMS
+      LAYERS: layerObj.layers, //lấy tên layer để gán vào LAYERS
+      SRS: layerObj.srs || global.appConfig.mapProjection, //lấy projection mặc định
+      VERSION: layerObj.serviceVersion, //lấy version của geoserver
+      STYLES: styles,
+    };
 
-	function createlayer(mapURL, layerObj) {//hàm tạo layer từ layer data truyền vào
-        tile = !!layerObj.tile;//lấy giá trị tile trong layerObj được truyền vào (boolean)
-        var layer = null;
-        var source = null;
-        var styles = layerObj.styles || undefined;//nếu style tồn tại thì lấy ngược lại undefine
-        var metroFeatures = []//bỏ
+    if (layerObj.vector) {
+      //nếu vector tồn tại
+      mapURL =
+        MAP_BASE_URL +
+        "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" +
+        layerObj.geserver_id +
+        "&outputFormat=application%2Fjson"; //lấy dữ liệu từ geoserver
 
-        var params = { //tạo một biến param để sử dụng cho WMS
-            LAYERS: layerObj.layers,//lấy tên layer để gán vào LAYERS
-            SRS: layerObj.srs || global.appConfig.mapProjection, //lấy projection mặc định 
-            VERSION: layerObj.serviceVersion,//lấy version của geoserver
-            STYLES: styles
-        }
-        
-		if(layerObj.vector) {//nếu vector tồn tại
-			mapURL = MAP_BASE_URL + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + layerObj.geserver_id + "&outputFormat=application%2Fjson"; //lấy dữ liệu từ geoserver
-			
-			layer = new ol.layer.Vector({//tạo một vector mới
-			    title: layerObj.title,
-			    visible: !!layerObj.visible,
-			    source: new ol.source.Vector({				 
-			        url: mapURL,
-				    format: new ol.format.GeoJSON()
-			    }),
-			    style: function(feature) {
-			        if (layerObj.type === 'Point') {
-			            return new ol.style.Style({
-    			            image: new ol.style.Circle({
-                                radius: 6,
-                                fill: new ol.style.Fill({
-                                    color: layerObj.fillColor,
-                                }),
-                                stroke: new ol.style.Stroke({
-                                    color: layerObj.fillStroke,
-                                    width: 2,
-                                }),
-                            })
-			            })
-			        } else if (layerObj.type === 'LineString') {
-			            let map = global.mapController.map
-			            let zoom = map.getView().getZoom();
-			            let width = zoom < 9 ? 4.5
-			                        : zoom < 10 ? 4
-			                        : zoom < 11 ? 3.5
-			                        : zoom < 12 ? 3
-			                        : 2.5
-			            
-			            let name = feature.get('name')
-			            let style = layerObj.styleFeature[name]
-			            return new ol.style.Style({
-                            stroke: new ol.style.Stroke({
-                                color: style,
-                                width: width,
-                            })
-                        });
-			        } else if (layerObj.type === 'Polygon') {
-			            return new ol.style.Style({
-                            stroke: new ol.style.Stroke({
-                                color: layerObj.fillStroke,
-                                width: layerObj.fillWidth,
-                            })
-                        });
-			        }
-			        
-			    },
-			    name: layerObj.name
-			});
-			layer.getSource().on('addfeature', function (event) {
-                var feature = event.feature;
-                feature.set('title', layerObj.title);
+      layer = new ol.layer.Vector({
+        //tạo một vector mới
+        title: layerObj.title,
+        visible: !!layerObj.visible,
+        source: new ol.source.Vector({
+          url: mapURL,
+          format: new ol.format.GeoJSON(),
+        }),
+        style: function (feature) {
+          if (layerObj.type === "Point") {
+            return new ol.style.Style({
+              image: new ol.style.Circle({
+                radius: 6,
+                fill: new ol.style.Fill({
+                  color: layerObj.fillColor,
+                }),
+                stroke: new ol.style.Stroke({
+                  color: layerObj.fillStroke,
+                  width: 2,
+                }),
+              }),
             });
-		} else {
-		    var layerNames = ["Neopolish", "Neopolish 2"]
-		    var layerName = layerObj.name
-		  //  if (layerNames.includes(layerName)) return;
-            // Handle Source
-            if (layerObj.GWCservice === 'WMTS') {//nếu GWCservice là WMTS
-                
-                source = new ol.source.XYZ({//tạo source XYZ
-                    url: mapURL + global.appConfig.WMTSService +
-                        `layer=${layerObj.geserver_id}` + 
-                        `&style=` + 
-                        `&tilematrixset=EPSG%3A900913` + 
-                        `&Service=WMTS` + 
-                        `&Request=GetTile` + 
-                        `&Version=1.0.0&` +
-                        `Format=image%2Fpng` + 
-                        `&TileMatrix=EPSG%3A900913%3A{z}&TileCol={x}&TileRow={y}` + 
-                        `&exceptions=application%2Fvnd.ogc.se_xmls`,
-                    crossOrigin: 'anonymous'
-                })
-            }
-            else {//nếu không là WMTS
-                source = new ol.source.TileWMS({//thêm các param vào tileWMS
-                    url: mapURL + global.appConfig.WMSService,
-                    params: params,
-                    serverType: layerObj.serverType || 'geoserver'
-                })
-            }
-            // Handle Layer Tile
-			if (tile) {//nếu tile là true
+          } else if (layerObj.type === "LineString") {
+            let map = global.mapController.map;
+            let zoom = map.getView().getZoom();
+            let width =
+              zoom < 9
+                ? 4.5
+                : zoom < 10
+                ? 4
+                : zoom < 11
+                ? 3.5
+                : zoom < 12
+                ? 3
+                : 2.5;
 
-            layer = new ol.layer.Tile({//tạo một Tile 
-                title: layerObj.title,
-                visible: !!layerObj.visible,
-                source: source
+            let name = feature.get("name");
+            let style = layerObj.styleFeature[name];
+            return new ol.style.Style({
+              stroke: new ol.style.Stroke({
+                color: style,
+                width: width,
+              }),
             });
+          } else if (layerObj.type === "Polygon") {
+            return new ol.style.Style({
+              stroke: new ol.style.Stroke({
+                color: layerObj.fillStroke,
+                width: layerObj.fillWidth,
+              }),
+            });
+          }
+        },
+        name: layerObj.name,
+      });
+      layer.getSource().on("addfeature", function (event) {
+        var feature = event.feature;
+        feature.set("title", layerObj.title);
+      });
+    } else {
+      var layerNames = ["Neopolish", "Neopolish 2"];
+      var layerName = layerObj.name;
+      //  if (layerNames.includes(layerName)) return;
+      // Handle Source
+      if (layerObj.GWCservice === "WMTS") {
+        //nếu GWCservice là WMTS
 
-			} else {//Ngược lại
+        source = new ol.source.XYZ({
+          //tạo source XYZ
+          url:
+            mapURL +
+            global.appConfig.WMTSService +
+            `layer=${layerObj.geserver_id}` +
+            `&style=` +
+            `&tilematrixset=EPSG%3A900913` +
+            `&Service=WMTS` +
+            `&Request=GetTile` +
+            `&Version=1.0.0&` +
+            `Format=image%2Fpng` +
+            `&TileMatrix=EPSG%3A900913%3A{z}&TileCol={x}&TileRow={y}` +
+            `&exceptions=application%2Fvnd.ogc.se_xmls`,
+          crossOrigin: "anonymous",
+        });
+      } else {
+        //nếu không là WMTS
+        source = new ol.source.TileWMS({
+          //thêm các param vào tileWMS
+          url: mapURL + global.appConfig.WMSService,
+          params: params,
+          serverType: layerObj.serverType || "geoserver",
+        });
+      }
+      // Handle Layer Tile
+      if (tile) {
+        //nếu tile là true
 
-				layer = new ol.layer.Image({//Tạo một imag
-					title: layerObj.title,
-					visible: !!layerObj.visible,
-					source: new ol.source.ImageWMS({
-						url: mapURL,
-						params: params,
-						serverType: layerObj.serverType || 'geoserver'
-					})
-				})
-			}
-		}
+        layer = new ol.layer.Tile({
+          //tạo một Tile
+          title: layerObj.title,
+          visible: !!layerObj.visible,
+          source: source,
+        });
+      } else {
+        //Ngược lại
 
-        return layers[layerObj.id] = layer;//trả về các layer trong các key id layer
+        layer = new ol.layer.Image({
+          //Tạo một imag
+          title: layerObj.title,
+          visible: !!layerObj.visible,
+          source: new ol.source.ImageWMS({
+            url: mapURL,
+            params: params,
+            serverType: layerObj.serverType || "geoserver",
+          }),
+        });
+      }
     }
-
+    return (layers[layerObj.id] = layer); //trả về các layer trong các key id layer
+  }
     function addParcelLayer(layerName, geomList, map, styleFill, styleLine) {
         var features = [];
         geomList.forEach(function(geom) {
@@ -387,76 +387,66 @@
         map.addLayer(vectorLayer);
     }
     //Create survey layer
-    function initSurveyLayer(dataLayer){
-      let layerMap =[];
+    function initSurveyLayer(dataLayer) {
+      let layerMap = [];
       var geoserver_id;
       var layerName;
       var visible;
       var newGeoserver = global.appConfig.newGeoserverURL;
-    
-      dataLayer.forEach((data)=>{
-          console.log(data)
+
+      dataLayer.forEach((data) => {
+        console.log(data);
         var styleLayer;
-        layerName = data.name
-        visible = data.visible
-        geoserver_id = data.geoserver_id
-        if (geoserver_id == 'gis:survey'){
-          styleLayer = new ol.style.Style({
-              stroke: new ol.style.Stroke({
-                color: 'green',
-                width: 1,
-              }),
-              fill: new ol.style.Fill({
-                color: 'rgba(0,255,0,0.1)',
-             }),
-            zIndex: 5
-          });
-           
-          
-          // styleLayer =
-            // [
-            //   {
-            //     filter: ['==', ['get','forsale'], 1],
-            //     style:{
-            //       'fill-color':'blue',
-            //     },
-            //   }
-            // ]
-        }else if(geoserver_id=='gis:non_survey'){
+        layerName = data.name;
+        visible = data.visible;
+        geoserver_id = data.geoserver_id;
+        if (geoserver_id == "gis:survey") {
           styleLayer = new ol.style.Style({
             stroke: new ol.style.Stroke({
-              color: 'red',
+              color: "green",
               width: 1,
             }),
             fill: new ol.style.Fill({
-              color: 'rgba(255,0,0,0.1)',
+              color: "rgba(0,255,0,0.1)",
             }),
-            zIndex: 4
-            
+            zIndex: 5,
+          });
+        } else if (geoserver_id == "gis:non_survey") {
+          styleLayer = new ol.style.Style({
+            stroke: new ol.style.Stroke({
+              color: "red",
+              width: 1,
+            }),
+            fill: new ol.style.Fill({
+              color: "rgba(255,0,0,0.1)",
+            }),
+            zIndex: 4,
           });
         }
-        var url = newGeoserver
-                  + '/gwc/service/tms/1.0.0/'
-                  +geoserver_id
-                  +'@EPSG%3A900913'
-                  +'@pbf/{z}/{x}/{-y}.pbf'
-    
-        layerMap.push(new ol.layer.VectorTile({
-          declutter: true,
-          source: new ol.source.VectorTile({
-            maxZoom: 15,
-            format: new ol.format.MVT({
-            //   idProperty: 'gis_id',
+        var url =
+          newGeoserver +
+          "/gwc/service/tms/1.0.0/" +
+          geoserver_id +
+          "@EPSG%3A900913" +
+          "@pbf/{z}/{x}/{-y}.pbf";
+
+        layerMap.push(
+          new ol.layer.VectorTile({
+            declutter: true,
+            source: new ol.source.VectorTile({
+              maxZoom: 15,
+              format: new ol.format.MVT({
+                //   idProperty: 'gis_id',
+              }),
+              url: url,
             }),
-            url:url,
-          }),
-          style: styleLayer,
-          visible:visible,
-          name:layerName
-        })
-        )
-        })
-      return layerMap
+            style: styleLayer,
+            visible: visible,
+            name: layerName,
+          })
+        );
+      });
+      return layerMap;
     }
     
     function createFeatureStyle(style_id, map) {//tạo style cho feature building point
@@ -521,147 +511,7 @@
         })
     }
 
-    function addBuildingLayer(layerName, centroidList, map) {//hàm tạo lớp buildingLayer (gán vào 3 tham số: tên layer, list dữ liệu layer, map)
-        var features = [];
-        
-        centroidList.forEach(function(data) {//lặp qua danh sách các dữ liệu
-            var feature = new ol.Feature({	//tạo đối tượng Feature mới
-                geometry: data.point,		//thêm các trường dữ liệu cho Feature
-                gis_id: data.gis_id,
-                style_id:data.style_id
-            });
-            createFeatureStyle(data.style_id, map).then(function (style) {	//Tạo style khi đối tượng có style_id
-                feature.setStyle(style);	//Set style cho mỗi đối tượng
-            });
-            
-            features.push(feature);	//Thêm các đối tượng vào mảng features
-        });
-        
-        var vectorSource = new ol.source.Vector({	//Tạo source vector từ mảng features
-            features: features
-        });
-        
-        var vectorLayer = new ol.layer.Vector({		//Tạo lớp vector lấy source được tạo ở phía trên (có thể bỏ đoạn code này)
-            source: vectorSource,
-            name: layerName,
-        });
-        
-        var clusterSource = new ol.source.Cluster({	//Tạo source cluster từ các điểm
-            distance: 40,	//khoảng cách để gom các điểm lại là 40
-            source: vectorSource, //Source được tạo ở phía trên
-        });
-        
-        var styleCache = {};	//tạo một obj để chứa style
-        var maxRadius = 20;	//tạo một biến mặc định là bán kính của vòng tròn điểm
-        
-        var clusterLayer = new ol.layer.Vector({	//tạo lớp layer hiển thị lớp cluster lên map
-            source: clusterSource,	//gán source cluster
-            style: function (feature) {		//style là một function
-                var size = feature?.get('features').length;	//thay đổi size tuỳ vào số lượng các điểm tại khu vực đó
-                var baseRadius = 10;
-                var radius = baseRadius + size * 1.5;	//Vòng tròn điểm sẽ thay đổi nếu size lớn
-                
-                var textSize = Math.min(16, 8 + size)+2;	//size cũng sẽ thay đổi theo số lượng các điểm
-                radius = Math.min(radius, maxRadius)+2;
-                
-                if (size === 1) { 	//nếu size bằng 1 thì sẽ gán icon cho điểm
-                    return feature.get('features')[0].getStyle();
-                } else {
-                    var style = styleCache[size];	//nếu lớn hơn 1 sẽ hiển thị các radius của cluster
-                    
-                    if (!style) {	//kiểm tra xem style có tồn tại trong styleCache không
-                        style = new ol.style.Style({	//Nếu chưa tồn tại tạo một style mới
-                            image: new ol.style.Circle({
-                                radius: radius,
-                                stroke: new ol.style.Stroke({
-                                    color: 'rgb(141, 143, 178)',
-                                    width: 1,
-                                }),
-                                fill: new ol.style.Fill({
-                                    color: 'rgb(255, 255, 255)', 
-                                }),
-                            }),
-                            text: new ol.style.Text({
-                                text: size?.toString(),
-                                fill: new ol.style.Fill({
-                                    color: 'rgb(141, 143, 178)',
-                                }),
-                                stoke: new ol.style.Stroke({
-                                    color: 'rgba(0, 0, 0, 0.6)',
-                                    width: 3,
-                                }),
-                                font: 'bold ' + textSize + 'px Arial',
-                            }),
-                            zIndex: 1
-                        });
-                        var shadowStyleOut = new ol.style.Style({	//tạo hiệu ứng bóng ngoài cho điểm
-                            image: new ol.style.Circle({
-                                radius: radius + 2, 
-                                fill: new ol.style.Fill({
-                                    color: 'rgba(141, 143, 178, 0.1)', 
-                                }),
-                            }),
-                            zIndex: 0 
-                        });
-                        var shadowStyleIn = new ol.style.Style({	//tạo hiệu ứng bóng trong cho điểm
-                            image: new ol.style.Circle({
-                                radius: radius - 1, 
-                                fill: new ol.style.Fill({
-                                    color: 'rgba(255, 255, 255, 0)', 
-                                }),
-                                stroke: new ol.style.Stroke({
-                                    color: 'rgba(141, 143, 178, 0.2)',
-                                    width:3,
-                                })
-                            }),
-                            zIndex: 2 
-                        });
-                        style = [shadowStyleIn, shadowStyleOut, style];		//gán style cho layer
-                        styleCache[size] = style;
-                    }
-                    return style;
-                    }
-                }
-        });
-
-        clusterLayer.set('name', layerName);
-        clusterLayer.setZIndex(7);
-        map.addLayer(clusterLayer);
-        
-    }
-    
-    function removeLayer (layerName, map) { //hàm gỡ layer ra khỏi map, tham số truyền vào sẽ là tên layer và đối tượng map
-        var layerRemoved = map.getLayers().getArray().find(layer => layer.get('name') === layerName);		//tìm layer từ tên layer
-        if (layerRemoved) {	//nếu layer tồn tại
-              map.removeLayer(layerRemoved);	//remove layer ra khỏi map
-        }
-    }
-    
-    function zoomToLayer(extent, map) {		//hàm phóng đến một layer, tham số truyền vào là extent của đối tượng và map
-        map.getView().fit(extent, {	//hướng đến giới hạn toạ độ được truyền vào
-            size: map.getSize(),
-            padding:[10,10,10,10],
-            nearest: false,
-            duration: 500
-        });
-    }
-    
-    function setVisibleParcelLayer(map, option) {
-        var layerGroup = map.getLayers().getArray().find(layer => layer.get('title') === 'Layers');
-        if (layerGroup instanceof ol.layer.Group) {
-            var parcelLayer = layerGroup.getLayers().getArray().find(layer => layer.get('title') === "Propery");
-            if (parcelLayer) {
-                parcelLayer.setVisible(option);
-            }
-        }
-    }
-    
-    function updateBuildingList(buildingList, buildingLayerName, geometryPoint) {	//không sử dụng
-        var point = format.readGeometry(geometryPoint);
-        var catId = data.cat_id === null ? 0 : data.cat_id
-    }
-    
-    function handleHighlightLayer(dataList, map, styleFill, styleLine, polygonLayerName, buildingLayerName) {	//hàm được sử dụng để tạo các lớp survey, nonsurvey, building point từ API
+function handleHighlightLayer(dataList, map, styleFill, styleLine, polygonLayerName, buildingLayerName) {	//hàm được sử dụng để tạo các lớp survey, nonsurvey, building point từ API
         var extent = ol.extent.createEmpty();	//tạo một extent rỗng khi chạy hàm
         // var geomList = [];
         var buildingList = []	//tạo array buildingList rỗng để chứa các dữ liệu
@@ -708,7 +558,163 @@
         }
         //zoomToLayer(extent, map);
     }
+    function addBuildingLayer(layerName, centroidList, map) {
+      //hàm tạo lớp buildingLayer (gán vào 3 tham số: tên layer, list dữ liệu layer, map)
+      var features = [];
+
+      centroidList.forEach(function (data) {
+        //lặp qua danh sách các dữ liệu
+        var feature = new ol.Feature({
+          //tạo đối tượng Feature mới
+          geometry: data.point, //thêm các trường dữ liệu cho Feature
+          gis_id: data.gis_id,
+          style_id: data.style_id,
+        });
+        createFeatureStyle(data.style_id, map).then(function (style) {
+          //Tạo style khi đối tượng có style_id
+          feature.setStyle(style); //Set style cho mỗi đối tượng
+        });
+
+        features.push(feature); //Thêm các đối tượng vào mảng features
+      });
+
+      var vectorSource = new ol.source.Vector({
+        //Tạo source vector từ mảng features
+        features: features,
+      });
+
+      var vectorLayer = new ol.layer.Vector({
+        //Tạo lớp vector lấy source được tạo ở phía trên (có thể bỏ đoạn code này)
+        source: vectorSource,
+        name: layerName,
+      });
+
+      var clusterSource = new ol.source.Cluster({
+        //Tạo source cluster từ các điểm
+        distance: 40, //khoảng cách để gom các điểm lại là 40
+        source: vectorSource, //Source được tạo ở phía trên
+      });
+
+      var styleCache = {}; //tạo một obj để chứa style
+      var maxRadius = 20; //tạo một biến mặc định là bán kính của vòng tròn điểm
+
+      var clusterLayer = new ol.layer.Vector({
+        //tạo lớp layer hiển thị lớp cluster lên map
+        source: clusterSource, //gán source cluster
+        style: function (feature) {
+          //style là một function
+          var size = feature?.get("features").length; //thay đổi size tuỳ vào số lượng các điểm tại khu vực đó
+          var baseRadius = 10;
+          var radius = baseRadius + size * 1.5; //Vòng tròn điểm sẽ thay đổi nếu size lớn
+
+          var textSize = Math.min(16, 8 + size) + 2; //size cũng sẽ thay đổi theo số lượng các điểm
+          radius = Math.min(radius, maxRadius) + 2;
+
+          if (size === 1) {
+            //nếu size bằng 1 thì sẽ gán icon cho điểm
+            return feature.get("features")[0].getStyle();
+          } else {
+            var style = styleCache[size]; //nếu lớn hơn 1 sẽ hiển thị các radius của cluster
+
+            if (!style) {
+              //kiểm tra xem style có tồn tại trong styleCache không
+              style = new ol.style.Style({
+                //Nếu chưa tồn tại tạo một style mới
+                image: new ol.style.Circle({
+                  radius: radius,
+                  stroke: new ol.style.Stroke({
+                    color: "rgb(141, 143, 178)",
+                    width: 1,
+                  }),
+                  fill: new ol.style.Fill({
+                    color: "rgb(255, 255, 255)",
+                  }),
+                }),
+                text: new ol.style.Text({
+                  text: size?.toString(),
+                  fill: new ol.style.Fill({
+                    color: "rgb(141, 143, 178)",
+                  }),
+                  stoke: new ol.style.Stroke({
+                    color: "rgba(0, 0, 0, 0.6)",
+                    width: 3,
+                  }),
+                  font: "bold " + textSize + "px Arial",
+                }),
+                zIndex: 1,
+              });
+              var shadowStyleOut = new ol.style.Style({
+                //tạo hiệu ứng bóng ngoài cho điểm
+                image: new ol.style.Circle({
+                  radius: radius + 2,
+                  fill: new ol.style.Fill({
+                    color: "rgba(141, 143, 178, 0.1)",
+                  }),
+                }),
+                zIndex: 0,
+              });
+              var shadowStyleIn = new ol.style.Style({
+                //tạo hiệu ứng bóng trong cho điểm
+                image: new ol.style.Circle({
+                  radius: radius - 1,
+                  fill: new ol.style.Fill({
+                    color: "rgba(255, 255, 255, 0)",
+                  }),
+                  stroke: new ol.style.Stroke({
+                    color: "rgba(141, 143, 178, 0.2)",
+                    width: 3,
+                  }),
+                }),
+                zIndex: 2,
+              });
+              style = [shadowStyleIn, shadowStyleOut, style]; //gán style cho layer
+              styleCache[size] = style;
+            }
+            return style;
+          }
+        },
+      });
+
+      clusterLayer.set("name", layerName);
+      clusterLayer.setZIndex(7);
+      map.addLayer(clusterLayer);
+    }
     
+    function removeLayer(layerName, map) {
+      //hàm gỡ layer ra khỏi map, tham số truyền vào sẽ là tên layer và đối tượng map
+      var layerRemoved = map
+        .getLayers()
+        .getArray()
+        .find((layer) => layer.get("name") === layerName); //tìm layer từ tên layer
+      if (layerRemoved) {
+        //nếu layer tồn tại
+        map.removeLayer(layerRemoved); //remove layer ra khỏi map
+      }
+    }
+    
+    function zoomToLayer(extent, map) {		//hàm phóng đến một layer, tham số truyền vào là extent của đối tượng và map
+        map.getView().fit(extent, {	//hướng đến giới hạn toạ độ được truyền vào
+            size: map.getSize(),
+            padding:[10,10,10,10],
+            nearest: false,
+            duration: 500
+        });
+    }
+    
+    function setVisibleParcelLayer(map, option) {
+        var layerGroup = map.getLayers().getArray().find(layer => layer.get('title') === 'Layers');
+        if (layerGroup instanceof ol.layer.Group) {
+            var parcelLayer = layerGroup.getLayers().getArray().find(layer => layer.get('title') === "Propery");
+            if (parcelLayer) {
+                parcelLayer.setVisible(option);
+            }
+        }
+    }
+    
+    function updateBuildingList(buildingList, buildingLayerName, geometryPoint) {	//không sử dụng
+        var point = format.readGeometry(geometryPoint);
+        var catId = data.cat_id === null ? 0 : data.cat_id
+    }
     function clearSurveyAndNonSurveyLayer (map) { //hàm được sử dụng để remove các layer
         var layerList = ['Survey Point', 'Survey Polygon', 'Not Survey Point', 'Not Survey Polygon']
         layerList.forEach(function(lay) {
@@ -906,7 +912,15 @@
 		map.addLayer(vectorLayer)
         
     }
-    
+function updateParams(layerId, params){
+	var l = layers[layerId];
+	if(!l){
+	        return false;
+	}
+	l.getSource().updateParams(params);
+	return true;
+	}
+
     var obj = {
         initSurveyLayer:initSurveyLayer,
         initBackgroundLayers: initBackgroundLayers,
