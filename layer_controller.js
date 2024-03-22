@@ -511,7 +511,7 @@
         })
     }
 
-function handleHighlightLayer(dataList, map, styleFill, styleLine, polygonLayerName, buildingLayerName) {	//hàm được sử dụng để tạo các lớp survey, nonsurvey, building point từ API
+function handleHighlightLayer(dataList, map,buildingLayerName) {	//hàm được sử dụng để tạo các lớp survey, nonsurvey, building point từ API
         var extent = ol.extent.createEmpty();	//tạo một extent rỗng khi chạy hàm
         // var geomList = [];
         var buildingList = []	//tạo array buildingList rỗng để chứa các dữ liệu
@@ -701,20 +701,6 @@ function handleHighlightLayer(dataList, map, styleFill, styleLine, polygonLayerN
         });
     }
     
-    function setVisibleParcelLayer(map, option) {
-        var layerGroup = map.getLayers().getArray().find(layer => layer.get('title') === 'Layers');
-        if (layerGroup instanceof ol.layer.Group) {
-            var parcelLayer = layerGroup.getLayers().getArray().find(layer => layer.get('title') === "Propery");
-            if (parcelLayer) {
-                parcelLayer.setVisible(option);
-            }
-        }
-    }
-    
-    function updateBuildingList(buildingList, buildingLayerName, geometryPoint) {	//không sử dụng
-        var point = format.readGeometry(geometryPoint);
-        var catId = data.cat_id === null ? 0 : data.cat_id
-    }
     function clearSurveyAndNonSurveyLayer (map) { //hàm được sử dụng để remove các layer
         var layerList = ['Survey Point', 'Survey Polygon', 'Not Survey Point', 'Not Survey Polygon']
         layerList.forEach(function(lay) {
@@ -920,7 +906,23 @@ function updateParams(layerId, params){
 	l.getSource().updateParams(params);
 	return true;
 	}
+function setVisibleParcelLayer(map, option) {
+        var layerGroup = map.getLayers().getArray().find(layer => layer.get('title') === 'Layers');
+        if (layerGroup instanceof ol.layer.Group) {
+            var parcelLayer = layerGroup.getLayers().getArray().find(layer => layer.get('title') === "Propery");
+            if (parcelLayer) {
+                parcelLayer.setVisible(option);
+            }
+        }
+    }
+    
+    function updateBuildingList(buildingList, buildingLayerName, geometryPoint) {	//không sử dụng
+        var point = format.readGeometry(geometryPoint);
+        var catId = data.cat_id === null ? 0 : data.cat_id
+    }
 
+
+	
     var obj = {
         initSurveyLayer:initSurveyLayer,
         initBackgroundLayers: initBackgroundLayers,
