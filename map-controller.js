@@ -1175,137 +1175,8 @@
             var view = map.getView();    //lấy view map hiện tại
             var viewCenter = view.getCenter();    //lấy toạ độ trung tâm của view map hiện tại
             var formData = $('#searchFilter').serializeArray();    //lấy form dữ liệu được input vào
-                searchFeature(formData, viewCenter);    //gọi hàm search theo vị trí được lấy hiện tại
-            //     var newZoom = global.appConfig.defaultZoom;
-            //     view.animate({
-            //         zoom: newZoom,
-            //         center:global.appConfig.defaultCenter
-            //     });
-            
-        // //   setTimeout(function()
-        // //   {
-        // //       var formData = $('#searchFilter').serializeArray();
-        // //       searchFeature(formData);
-        // //   },1000);
-            
-        //     // zoomToNonSurveyPolygon(map);
-        
-
-        
-        // survey[1].setVisible(false)
-        // survey[0].setVisible(false)
-        
-        // //filter survey                //Phần này dùng để filter survey và non survey trên front-end
-        // var selectSurvey = document.getElementById('surveyed_id')   
-        // var SurveyValue = selectSurvey.value
-        
-        // //filter sale rent
-        // var SaleRent = document.getElementById('sale_rent')
-        // var SaleRentValue = SaleRent.value
-        // var SaleSelected= SaleRentValue==1?1:0    //nếu sale trả về là 1 thì set SaleSelected là 1 ngược lại là 0
-        // var RentSelected= SaleRentValue==2?1:0     //nếu rent trả về là 2 thì set RentSelected là 1 ngược lại là 0 
-    
-        
-        
-        // //filter pincode
-        // var pincode = document.getElementById('pincode')
-        // var pincodeValue = pincode.value.toString()
-
-        // //filter Unit_type
-        // var unitType = document.getElementById('unit_type')
-        
-        // var unitTypeValue = unitType.value
-        // //category Id
-        // var catId = document.getElementById('category_property')
-        // var catIdValue = catId.value
-        // //Filter GISID
-        // //Style filter
-        // const baseStyleSurveyPolygon = new ol.style.Style({        //tạo style cho 2 lớp survey và non survey
-        //                                 fill: new ol.style.Fill({
-        //                                     color: 'rgba(0, 255, 0, 0.1)'
-        //                                 }),
-        //                                 stroke: new ol.style.Stroke({
-        //                                     color:'rgb(0, 255, 0)'
-        //                                 })
-        //                                 });
-        // const baseStyleNonSurveyPolygon = new ol.style.Style({
-        //                                 fill: new ol.style.Fill({
-        //                                     color: 'rgba(255, 0, 0, 0.1)'
-        //                                 }),
-        //                                 stroke: new ol.style.Stroke({
-        //                                     color:'rgb(255, 0, 0)'
-        //                                 })
-        //                                 });
-          
-        // if(SurveyValue == 1 || SurveyValue == ""){    //nếu SurveyValue truyền vào là 1 hoặc không truyền vào
-        //     var formData = $('#searchFilter').serializeArray();    //lấy dữ liệu của form data
-        //         searchFeature(formData, viewCenter);    //gọi hàm search để lấy dữ liệu
-        //     var filterStyle = (feature) => {    //tạo một function để gán style
-        //         var properties = feature.getProperties();    //lấy ra properties của feature
-        //         // console.log("unit_type_id "+properties['unit_type_id'])
-        //         // console.log("cat_id "+properties['cat_id'])
-        //         // console.log("pincode "+properties['pincode'])
-        //         let SurveyCondition = true;     //đặt flag cho điều kiện
-        //         let SaleCondition = true; 
-        //         let RentCondition = true; 
-
-        //         // Check if each property exists and meets the condition. If it does not exist, this part is skipped.
-        //         if (unitTypeValue !== undefined && unitTypeValue !=="") {    //Kiểm tra xem unitTypeValue có được nhập hay không, nếu được nhập
-        //           SurveyCondition = SurveyCondition && (properties['unit_type_id'] === parseInt(unitTypeValue));    //kiểm tra xem biến SurveyCondition và properties['unit_type_id'] có tồn tại không nếu có thì true
-        //         }
-        //         if (catIdValue !== undefined && catIdValue !=="" ) {    //Kiểm tra tiếp tục với Surveycondition true với trường cat_id
-        //           SurveyCondition = SurveyCondition && (properties['cat_id'] === parseInt(catIdValue));
-        //         }
-        //         if (pincodeValue !== undefined && pincodeValue !=="") {
-        //           SurveyCondition = SurveyCondition && (properties['pincode'] === pincodeValue);
-        //         }
-        //         if (SaleSelected !== undefined && SaleSelected !=="") {
-        //           SaleCondition = SurveyCondition && (properties['forsale'] === SaleSelected);
-        //         }
-        //         if (RentSelected !== undefined && RentSelected !=="") {
-        //           RentCondition = SurveyCondition && (properties['forrent'] === RentSelected);
-        //         }
-                
-        //         if (SaleCondition) { //trả về nếu SaleCondition true 
-        //           return baseStyleSurveyPolygon
-        //         }
-        //         if (RentCondition) {
-        //           return baseStyleSurveyPolygon
-        //         }
-                
-
-        //     }
-        //     survey[1].setVisible(true)
-        //     survey[1].setStyle(filterStyle);
-            
-        // }
-        // if(SurveyValue == 2 || SurveyValue == "") {    //tiếp theo với trường hợp chọn Non Survey
-        //     var filterStyle =(feature)=>{
-        //         var properties = feature.getProperties();
-        //         let NoSurveyCondition = true; 
-                
-                
-        //         if (unitTypeValue !== undefined && unitTypeValue !=="") {
-        //           NoSurveyCondition = NoSurveyCondition && (properties['unit_type_id'] === parseInt(unitTypeValue));
-        //         }
-        //         if (catIdValue !== undefined && catIdValue !=="" ) {
-        //           NoSurveyCondition = NoSurveyCondition && (properties['cat_id'] === parseInt(catIdValue));
-        //         }
-        //         if (pincodeValue !== undefined && pincodeValue !=="") {
-        //           NoSurveyCondition = NoSurveyCondition && (properties['pincode'] === pincodeValue);
-        //         }
-        //         if(NoSurveyCondition){
-        //             return baseStyleNonSurveyPolygon;           
-        //         }      
-        //     }   
-        //     survey[0].setVisible(true)    //set Visible và style lại cho nonsurvey
-        //     survey[0].setStyle(filterStyle)
-            
-        //     var buildingLayer = map.getLayers().getArray().find(layer => layer.get('name') === "Survey Point");    //nếu chọn non survey thì lớp building sẽ được gỡ ra khỏi bản đồ
-        //     map.removeLayer(buildingLayer)
-            
-        // }
-    });
+            searchFeature(formData, viewCenter);    //gọi hàm search theo vị trí được lấy hiện tại
+        });
 
 
         $('#btnReset').click(function(){    //sự kiện nút Reset 
@@ -1332,14 +1203,14 @@
         })
         
         $('#searchInput').keypress(function (event) { //hàm này sẽ bắt sự kiện tìm kiếm khi nhập vào nút Enter (hiện tại không hoạt động)
-            var keycode = (event.keyCode ? event.keyCode : event.which);
-            if (keycode == '13') {
-                searchFeature();
-            }
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    searchFeature();
+                }
+            });
         });
-    });
     
-    function FilterGisId(GisId, GisIdNonSurvey){ //hàm này được tạo để hiển thị dữ liệu survey và nonsurvey lấy dữ liệu từ gis_id của building
+    function FilterGisId(GisId, GisIdNonSurvey){
         const baseStyleSurveyPolygon = new ol.style.Style({
                                         fill: new ol.style.Fill({
                                             color: 'rgba(0, 255, 0, 0.1)'
@@ -1355,26 +1226,27 @@
                                         stroke: new ol.style.Stroke({
                                             color:'rgb(255, 0, 0)'
                                         })
-                                        });                                
-        var filterStyle = (feature) => { //tạo một function để lấy các feature và gán style cho các feature có chứa properties đó
-            var properties = feature.getProperties();    //lấy ra properties của feature
-            // GisId.forEach(data=>{
-                    // properties['gis_id'] === data
-                  
-            // })
-            if(GisId.includes(properties['gis_id'])){    //kiểm tra xem properties['gis_id'] có tồn tại trong GisId trả về hay không
-                return baseStyleSurveyPolygon;    //nếu có trả về các feature có properties tồn tại và style survey
+                                        });          
+        const GisIDSet = new Set(GisId);
+        const GisIdNonSurveySet = new Set(GisIdNonSurvey)
+
+        var filterSurveyStyle = (feature) => {
+            var properties = feature.getProperties();
+            
+            if(GisIDSet.has(properties['gis_id'])){
+                return baseStyleSurveyPolygon;
             }
-            if(GisIdNonSurvey.includes(properties['gis_id'])){    //kiểm tra xem properties['gis_id'] có tồn tại trong GisIdNonSurvey trả về hay không
-                if(GisIdNonSurvey.length === 1){    //nếu GisIdNonSurvey trả về một đối tượng
-                    zoomToNonSurveyPolygon(map,feature,GisIdNonSurvey.join(','));    //gọi hàm zoom đến đối tượng đó và hiển thị popup (đang failed)
-                }   
+
+        }
+        var filterNonSurveyStyle = (feature) => {
+            var properties = feature.getProperties();
+            if(GisIdNonSurveySet.has(properties['gis_id'])){
                 return baseStyleNonSurveyPolygon;
             }
         }
-        survey[1].setVisible(true)    //set hiển thị lên cho các lớp
-        survey[1].setStyle(filterStyle);    //gán style cho survey và non survey
-        survey[0].setStyle(filterStyle);
+        survey[1].setVisible(true)
+        survey[1].setStyle(filterSurveyStyle);
+        survey[0].setStyle(filterNonSurveyStyle);
         
     }
     
@@ -1404,12 +1276,6 @@
                         res.surveyed === "surveyed"    //đếm số lượng properties
                     ).length;
                     
-                    // if (response.message.length == '21500') {
-                    //         $("#properties_count").text(propertiesCount); 
-                    //     } else {
-                    //         $("#properties_count").text(propertiesCount);
-                    //     }
-                    
                     if (Array.isArray(response.message)) {    //kiểm tra xem message có phải là mảng hay không
                         
                         $("#properties_count").text(propertiesCount);    //gán số properties được tìm thấy
@@ -1417,12 +1283,15 @@
                         var ids_survey = [];    //tạo các mảng để chứa gis_id của các lớp
                         var ids_not_survey = [];
                         var surveylayer = [];
+                        var geometry = [];
                         
                         for (i = 0; i < response.message.length; i++) {    //lặp qua các phần tử trong mảng
                             let item = response.message[i];    //lấy các phần tử trong massege gán vào biến item(chứa các geoJson từ API)
                             let id = item.gis_id;    //lấy ra gis_id
                             let survey_status = item.surveyed;    //lấy ra trạng thái survey hoặc nonsurvey
-                            
+                            if(item.geometry){
+                                geometry.push(item.geometry)
+                            }
                             if (survey_status === "surveyed") { // nếu trạng thái là surveyed
                                 ids_survey.push(id)    //push các id vào ids_survey
                                 surveylayer.push(item)    //gán các item chứa buidling list vào surveylayer
@@ -1447,7 +1316,7 @@
                         GISApp.layerController.clearSurveyAndNonSurveyLayer(map); //clear các lớp đang hiển thị (non survey, survey)
                         GISApp.layerController.handleHighlightLayer(surveylayer, map, survey_fill_style, survey_line_style, survey_polygon_name, survey_polygon_point);
                         //await updateHighlightLayer(survey_url, ids_survey, postData, survey_fill_style, survey_line_style, survey_polygon_name, survey_polygon_point);
-                    
+                        if(ids_not_survey.length==1){zoomToNonSurveyPolygon(map,geometry,ids_not_survey)}
                         //await updateHighlightLayer(non_survey_url, ids_not_survey, postData, non_survey_fill_style, non_survey_line_style, non_survey_polygon_name, null);
                         
                         if (coordinates === null) { //nếu không có toạ độ được đưa vào
@@ -1536,15 +1405,16 @@
     map.addControl(new ol.control.OverviewMap())
     map.addControl(new ol.control.ScaleLine());
     //Handle search non-survey-polygon
-    function zoomToNonSurveyPolygon(map,feature,id){ //hàm này đang không chạy đúng
-        // var properties = feature.getProperties();
-        // var geometry = properties.getGeometry();
-        var extent = feature.getExtent();
-        map.getView().fit(extent, {size: map.getSize(), maxZoom:24});
-        var center = ol.extent.getCenter(extent);
-        global.popupController.showPopup(center,id);
-              
-           }
+    function zoomToNonSurveyPolygon(map,geometry,id){
+        var wktString = geometry[0]
+        var idString = id
+        var wktFormat = new ol.format.WKT();
+        var geometry = wktFormat.readGeometry(wktString);
+        var boundingBox = geometry.getExtent();
+        map.getView().fit(boundingBox, { padding: [10, 10, 10, 10] }); // Điều chỉnh padding theo nhu cầu của bạn
+        var center = ol.extent.getCenter(boundingBox);
+        global.popupController.showPopup(center,idString);
+    }
     //Cluster event
     map.on('click', function(evt) {    //hàm này được sử dụng để zoom đến các đối tượng cluster khi nhấp vào con số đó
         // var cluster = map.getLayers().getArray();
