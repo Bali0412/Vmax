@@ -199,7 +199,6 @@
 
     let infoControl = global.infoOnClick.getInstance();//chỗ này không có tác dụng
 
-
     global.infoControl = infoControl;
 
     nested.addControl(infoControl);    //thêm button infoControl vào
