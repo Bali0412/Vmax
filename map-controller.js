@@ -222,7 +222,7 @@
     infoControl.setActive(true);//set trạng thái đang bật
 
 //Call API getSearched Feature to get data API ---------------------------------------------------------------------------
-function searchFeature(formData, coordinates = null) {
+function searchFeature(formData, coordinates = null, flagNonsurvey = false) {
         //hàm lấy dữ liệu input và gọi dữ liệu từ API
         //  Get the current extent of the map
         var extent = map.getView().calculateExtent(map.getSize()); //lấy view để tính toán ra giới hạn toạ độ của View hiện tại
@@ -240,56 +240,36 @@ function searchFeature(formData, coordinates = null) {
         postData.push({ name: "minY", value: minY });
         postData.push({ name: "maxX", value: maxX });
         postData.push({ name: "maxY", value: maxY });
-        postData.push({
-            name: "latLive",
-            value: coordinates !== null ? coordinates[0] : null,
-        }); //thêm toạ độ hiện tại gửi về API
-        postData.push({
-            name: "lngLive",
-            value: coordinates !== null ? coordinates[1] : null,
-        });
-
+        postData.push({name: "latLive", value: coordinates !== null ? coordinates[0] : null,}); //thêm toạ độ hiện tại gửi về API
+        postData.push({name: "lngLive", value: coordinates !== null ? coordinates[1] : null,});
+        postData.push({name: "flagNonSurvey", value: flagNonsurvey});
         $u.ajaxRequest(
             "POST",
             urlDestination, //sử dụng jquery Ajax để gọi API getSearchedFeature
             postData,
             async function (response) {
-                var propertiesCount = response.message.filter(
-                    (res) => res.surveyed === "surveyed" //đếm số lượng properties
-                ).length;
-
                 if (Array.isArray(response.message)) {
-                    //kiểm tra xem message có phải là mảng hay không
-
-                    $("#properties_count").text(propertiesCount); //gán số properties được tìm thấy
-                    $("#countdiv").show();
-                    var ids_survey = []; //tạo các mảng để chứa gis_id của các lớp
+                    var ids_survey = [];
                     var ids_not_survey = [];
                     var surveylayer = [];
                     var geometry = [];
 
-                    for (i = 0; i < response.message.length; i++) {
-                        //lặp qua các phần tử trong mảng
-                        let item = response.message[i]; //lấy các phần tử trong massege gán vào biến item(chứa các geoJson từ API)
-                        let id = item.gis_id; //lấy ra gis_id
-                        let survey_status = item.surveyed; //lấy ra trạng thái survey hoặc nonsurvey
-                        item.geometry ? geometry.push(item.geometry) : null;
-                        if (survey_status === "surveyed") {
-                            // nếu trạng thái là surveyed
-                            ids_survey.push(id); //push các id vào ids_survey
-                            surveylayer.push(item); //gán các item chứa buidling list vào surveylayer
-                        } else if (survey_status === "not-surveyed") {
-                            //ngược lại nếu là nonsurvey
-                            ids_not_survey.push(id); //gán các id nonsurvey vào mảng ids_not_survey
+                    response.message.forEach((item) => {
+                        var gis_id = item.gis_id
+                        var surveyed = item.surveyed
+                        var itemGeometry = item.geometry
+                        itemGeometry ? geometry.push(itemGeometry) : null;
+                        if (surveyed === "surveyed") {
+                            ids_survey.push(gis_id);
+                            surveylayer.push(item);
+                        } else if (surveyed === "not-surveyed") {
+                            ids_not_survey.push(gis_id);
                         }
-                    }
-                    FilterGisId(ids_survey, ids_not_survey); //chạy hàm filter các lớp theo gisId được gọi
+                    });
+                    FilterGisId(ids_survey, ids_not_survey, flagNonsurvey); //chạy hàm filter các lớp theo gisId được gọi
                     // Handle Building Styles
-                    var survey_line_style = "#00ff00";
-                    var survey_polygon_point = "Survey Point"; //tạo tên cho layer building point
-
                     GISApp.layerController.clearSurveyAndNonSurveyLayer(map); //clear các lớp đang hiển thị (non survey, survey)
-                    GISApp.layerController.handleHighlightLayer(surveylayer,map,survey_polygon_point);
+                    GISApp.layerController.handleHighlightLayer("Survey Point",map,survey_polygon_point);
                     if (ids_not_survey.length == 1) {
                         zoomToNonSurveyPolygon(map, geometry, ids_not_survey);
                     }
@@ -299,21 +279,7 @@ function searchFeature(formData, coordinates = null) {
                             zoomToBuildingLayer(map); //zoom đến layer building point
                         }, 2000);
                     }
-                } else {
-                    //hiện tại hàm này không chạy
-                    var n = noty({
-                        text: "No result!",
-                        type: "notification",
-                        layout: "center",
-                        animation: {
-                            open: { height: "toggle" },
-                            close: { height: "toggle" },
-                            easing: "swing",
-                            speed: 2000, // opening & closing animation speed
-                        },
-                    });
-                    n.close();
-                }
+                } 
             },
             function () {
                 //Nếu không tìm thấy dữ liệu sẽ thông báo Error Warning
@@ -336,7 +302,7 @@ function searchFeature(formData, coordinates = null) {
 //Call API getSearched Feature to get data API +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //Displaying Survey and Non Survey from Gis_ID API ----------------------------------------------------------------------------------
-    function FilterGisId(GisId, GisIdNonSurvey){
+    function FilterGisId(GisId, GisIdNonSurvey, flagNonsurvey){
         const baseStyleSurveyPolygon = new ol.style.Style({
                                         fill: new ol.style.Fill({
                                             color: 'rgba(0, 255, 0, 0.1)'
@@ -364,15 +330,20 @@ function searchFeature(formData, coordinates = null) {
             }
 
         }
+        if(flagNonsurvey){
         var filterNonSurveyStyle = (feature) => {
             var properties = feature.getProperties();
             if(GisIdNonSurveySet.has(properties['gis_id'])){
                 return baseStyleNonSurveyPolygon;
+                }
             }
+            survey[0].setStyle(filterNonSurveyStyle);
+        }else{
+            survey[0].setStyle(baseStyleNonSurveyPolygon);
         }
         survey[1].setVisible(true)
         survey[1].setStyle(filterSurveyStyle);
-        survey[0].setStyle(filterNonSurveyStyle);
+        
         
     }
     //End displaying Survey and Non Survey from Gis_ID API +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
