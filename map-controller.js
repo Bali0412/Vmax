@@ -135,7 +135,7 @@
     var WMS_URL = MAP_BASE_URL + global.appConfig.urlWMS;
     
     var location_For_Search = [];
-
+//Add all layer on map--------------------------------------------------------------------------------------------------------------------
     mapLayers = global.layerController.initBackgroundLayers();//Thêm các lớp nền vào map
     let nagoldaLayers = global.layerController.initLayers(global.layersData.nagoldaLayers); //Thêm các lớp nagoldaLayers vào map
     let neopolishLayers = global.layerController.initRasterLayers(global.layersData.neopolish, 'Neopolish Layers'); //thêm các lớp Neopolish vào map
@@ -273,9 +273,7 @@ function searchFeature(formData, coordinates = null) {
                         let item = response.message[i]; //lấy các phần tử trong massege gán vào biến item(chứa các geoJson từ API)
                         let id = item.gis_id; //lấy ra gis_id
                         let survey_status = item.surveyed; //lấy ra trạng thái survey hoặc nonsurvey
-                        if (item.geometry) {
-                            geometry.push(item.geometry);
-                        }
+                        item.geometry ? geometry.push(item.geometry) : null;
                         if (survey_status === "surveyed") {
                             // nếu trạng thái là surveyed
                             ids_survey.push(id); //push các id vào ids_survey
@@ -295,7 +293,6 @@ function searchFeature(formData, coordinates = null) {
                     if (ids_not_survey.length == 1) {
                         zoomToNonSurveyPolygon(map, geometry, ids_not_survey);
                     }
-
                     if (coordinates === null) {
                         //nếu không có toạ độ được đưa vào
                         setTimeout(() => {
@@ -336,7 +333,6 @@ function searchFeature(formData, coordinates = null) {
             }
         );
     }
-
 //Call API getSearched Feature to get data API +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //Displaying Survey and Non Survey from Gis_ID API ----------------------------------------------------------------------------------
@@ -505,9 +501,7 @@ function zoomToBuildingLayer(map) {    //hàm này được sử dụng để zo
         );
         global.popupController.showPopup(evt.coordinate, idList); //hiển thị popup với idList
 
-        if (idList.length !== 0) {    //Không được sử dụng
-            // callApiUpdateBuldingStyle(idList);
-        } else {        //nếu không nằm trong bất cứ feature nào thì sẽ hiển thị điểm point-clicked
+        if(idList.length == 0){        //nếu không nằm trong bất cứ feature nào thì sẽ hiển thị điểm point-clicked
             var coor = evt.coordinate;    //lấy ra toạ độ điểm click (location_for_search)
             var coor4326 = ol.proj.transform(coor,'EPSG:900913', 'EPSG:4326');
             var point = new ol.Feature({    //tạo một feature tại điểm click
