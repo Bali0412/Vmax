@@ -225,11 +225,11 @@
 function searchFeature(formData, coordinates = null, flagNonsurvey = false) {
         //hàm lấy dữ liệu input và gọi dữ liệu từ API
         //  Get the current extent of the map
-        var extent = map.getView().calculateExtent(map.getSize()); //lấy view để tính toán ra giới hạn toạ độ của View hiện tại
-        var minX = extent[0];
-        var minY = extent[1];
-        var maxX = extent[2];
-        var maxY = extent[3];
+        // var extent = map.getView().calculateExtent(map.getSize()); //lấy view để tính toán ra giới hạn toạ độ của View hiện tại
+        // var minX = extent[0];
+        // var minY = extent[1];
+        // var maxX = extent[2];
+        // var maxY = extent[3];
 
         var urlDestination = apiUrl + "/surveyor/webgis/get-search-feature"; //tạo url
         sourceGeomBuilding.clear();
