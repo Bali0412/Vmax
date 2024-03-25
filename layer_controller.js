@@ -10,7 +10,11 @@
     var mapBackgroundLayers = [];//bỏ
     var mapNeopolishLayers = [];//bỏ
 
-	function initBackgroundLayers() { //hàm tạo các lớp nền
+
+	//Functions add layers to map-------------------------------------------------------------------------------------------------
+
+	//Function add base map
+	function initBackgroundLayers() {
 
         // var roadmapLayer = new olgm.layer.Google({
         //     title: "Google street map",
@@ -95,7 +99,11 @@
         	// return mapBackgroundLayers = [roadmapLayer, hybridlayer, baseLayers];
         	return mapBackgroundLayers = [baseLayers];//hàm trả về một list các layer
     	}
-	function initRasterLayers(layersData, layerTitle) {
+
+
+	
+//Function add Raster Layers
+function initRasterLayers(layersData, layerTitle) {
     //hàm tạo các layer có kiểu là raster
     if (layersData) {
       //nếu layersData tồn tại
@@ -138,6 +146,8 @@
     }
   }
 
+
+//Function add Layers from layer-data (vector and raster)
     function initLayers(layersData) {
       //Thêm các layer
 
@@ -212,7 +222,7 @@
       }
     }
 
-	function createlayer(mapURL, layerObj) {
+function createlayer(mapURL, layerObj) {
     //hàm tạo layer từ layer data truyền vào
     tile = !!layerObj.tile; //lấy giá trị tile trong layerObj được truyền vào (boolean)
     var layer = null;
@@ -355,37 +365,6 @@
     }
     return (layers[layerObj.id] = layer); //trả về các layer trong các key id layer
   }
-    function addParcelLayer(layerName, geomList, map, styleFill, styleLine) {
-        var features = [];
-        geomList.forEach(function(geom) {
-            var feature = new ol.Feature({
-                geometry: geom
-            });
-            features.push(feature);
-        });
-        
-        var vectorSource = new ol.source.Vector({
-            features: features
-        });
-        
-        var resolution = map.getView().getResolution();
-
-        var vectorLayer = new ol.layer.Vector({
-            source: vectorSource,
-            style: new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                color: styleLine,
-                width: 2
-                }),
-                fill: new ol.style.Fill({
-                color: styleFill
-                }),
-            }),
-            name: layerName
-        });
-                                              
-        map.addLayer(vectorLayer);
-    }
     //Create survey layer
     function initSurveyLayer(dataLayer) {
       let layerMap = [];
@@ -679,7 +658,11 @@ function handleHighlightLayer(dataList, map,buildingLayerName) {	//hàm được
       clusterLayer.setZIndex(7);
       map.addLayer(clusterLayer);
     }
-    
+    //End functions add layers to map+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+	
     function removeLayer(layerName, map) {
       //hàm gỡ layer ra khỏi map, tham số truyền vào sẽ là tên layer và đối tượng map
       var layerRemoved = map
@@ -897,6 +880,38 @@ function handleHighlightLayer(dataList, map,buildingLayerName) {	//hàm được
 		});
 		map.addLayer(vectorLayer)
         
+    }
+
+    function addParcelLayer(layerName, geomList, map, styleFill, styleLine) {
+        var features = [];
+        geomList.forEach(function(geom) {
+            var feature = new ol.Feature({
+                geometry: geom
+            });
+            features.push(feature);
+        });
+        
+        var vectorSource = new ol.source.Vector({
+            features: features
+        });
+        
+        var resolution = map.getView().getResolution();
+
+        var vectorLayer = new ol.layer.Vector({
+            source: vectorSource,
+            style: new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                color: styleLine,
+                width: 2
+                }),
+                fill: new ol.style.Fill({
+                color: styleFill
+                }),
+            }),
+            name: layerName
+        });
+                                              
+        map.addLayer(vectorLayer);
     }
 function updateParams(layerId, params){
 	var l = layers[layerId];
